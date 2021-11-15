@@ -14,9 +14,6 @@ REQUIRED = [
     "numpy",
     "functools",
     "pyproj",
-    "odc-tools",
-    "odc-stats",
-    "odc-algo",
     "datacube",
     "dask"
 ]
