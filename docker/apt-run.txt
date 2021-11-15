@@ -1,0 +1,17 @@
+libtiff-tools
+libgsl23
+git
+htop
+tmux
+wget
+curl
+nano
+vim
+# libcgal13
+libcgal-dev
+libmuparser-dev
+libgsl23
+libboost-system1.71.0
+libboost-filesystem1.71.0
+libboost-date-time1.71.0
+build-essential

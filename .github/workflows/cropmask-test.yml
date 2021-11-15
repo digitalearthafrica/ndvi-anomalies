@@ -1,0 +1,34 @@
+name : Crop-mask Test
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docker/**'
+      - '.github/workflows/cropmask-*'
+      - 'production/dea_ml/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+#     - name: Check files using the black formatter
+#       uses: lgeiger/black-action@master
+#       with:
+#         args: "production/dea_ml --check"
+
+#     - name: Annotate diff changes using reviewdog
+#       if: ${{ failure() }}
+#       uses: reviewdog/action-suggester@v1
+#       with:
+#         tool_name: blackfmt
+
+    - name: Build crop-mask image
+      timeout-minutes: 20
+      shell: bash
+      run: |
+        docker build . --tag digitalearthafrica/crop-mask
