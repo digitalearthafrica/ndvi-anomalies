@@ -12,7 +12,6 @@ REQUIRED = [
     "xarray",
     "toolz",
     "numpy",
-    "functools",
     "pyproj",
     "datacube",
     "dask"
