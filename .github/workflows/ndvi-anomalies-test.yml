@@ -1,4 +1,4 @@
-name : Crop-mask Test
+name : ndvi-anomalies Test
 
 on:
   pull_request:
@@ -6,8 +6,8 @@ on:
       - main
     paths:
       - 'docker/**'
-      - '.github/workflows/cropmask-*'
-      - 'production/dea_ml/**'
+      - '.github/workflows/ndvi-anomalies-*'
+      - 'production/ndvi_tools/**'
 
 jobs:
   test:
@@ -19,7 +19,7 @@ jobs:
 #     - name: Check files using the black formatter
 #       uses: lgeiger/black-action@master
 #       with:
-#         args: "production/dea_ml --check"
+#         args: "production/ndvi_tools --check"
 
 #     - name: Annotate diff changes using reviewdog
 #       if: ${{ failure() }}
@@ -27,8 +27,8 @@ jobs:
 #       with:
 #         tool_name: blackfmt
 
-    - name: Build crop-mask image
+    - name: Build ndvi-anomalies image
       timeout-minutes: 20
       shell: bash
       run: |
-        docker build . --tag digitalearthafrica/crop-mask
+        docker build . --tag digitalearthafrica/ndvi-anomalies
