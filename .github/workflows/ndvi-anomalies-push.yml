@@ -1,4 +1,4 @@
-name : Crop-mask Push
+name : ndvi-anomalies Push
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
       - main
     paths:
       - 'docker/version.txt'
-      - '.github/workflows/cropmask-push.yml'
+      - '.github/workflows/ndvi-anomalies-push.yml'
 
 env:
-  IMAGE_NAME: digitalearthafrica/crop-mask
+  IMAGE_NAME: digitalearthafrica/ndvi-anomalies
 
 jobs:
   push:
