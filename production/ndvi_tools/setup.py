@@ -14,10 +14,10 @@ REQUIRED = [
     "numpy",
     "functools",
     "pyproj",
-    "odc-tools"
+    "odc-tools",
     "odc-stats",
     "odc-algo",
-    "datacube"
+    "datacube",
     "dask"
 ]
 
