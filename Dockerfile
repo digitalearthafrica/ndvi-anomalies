@@ -30,4 +30,4 @@ ADD production/ndvi_tools /code
 RUN pip install /code
 WORKDIR /code
 
-RUN pip freeze && pip check
+RUN pip freeze

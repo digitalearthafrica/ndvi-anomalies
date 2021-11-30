@@ -46,7 +46,7 @@ setup_kwargs = {
     "install_requires": REQUIRED if not IS_DEAFRICA_SANDBOX else [],
     "packages": find_packages(),
     "include_package_data": True,
-    "license": "Apache License 2.0",
-    }
+    "license": "Apache License 2.0"
+}
 
 setup(**setup_kwargs)
