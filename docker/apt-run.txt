@@ -7,7 +7,6 @@ wget
 curl
 nano
 vim
-# libcgal13
 libcgal-dev
 libmuparser-dev
 libgsl23

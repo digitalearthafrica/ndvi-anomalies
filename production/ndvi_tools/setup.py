@@ -9,12 +9,7 @@ IS_DEAFRICA_SANDBOX = ('sandbox' in os.getenv('JUPYTER_IMAGE', default=''))
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "xarray",
-    "toolz",
-    "numpy",
-    "pyproj",
-    "datacube",
-    "dask"
+    "odc-stats"
 ]
 
 # Package meta-data.

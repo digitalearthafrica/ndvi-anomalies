@@ -1,0 +1,2 @@
+datacube[performance,s3]
+aiobotocore[awscli,boto3]
