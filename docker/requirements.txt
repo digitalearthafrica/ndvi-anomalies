@@ -111,6 +111,7 @@ datacube[performance,s3]==1.8.5
     # via
     #   -r docker/fixed-requirements.txt
     #   eodatasets3
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-algo
     #   odc-dscache
     #   odc-stac
@@ -188,6 +189,7 @@ numpy==1.21.4
     #   eodatasets3
     #   imageio
     #   matplotlib
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   netcdf4
     #   numexpr
     #   odc-algo
@@ -203,7 +205,9 @@ numpy==1.21.4
     #   tifffile
     #   xarray
 odc-algo==0.2.1
-    # via odc-stats
+    # via
+    #   ndvi-tools (production/ndvi_tools/setup.py)
+    #   odc-stats
 odc-cloud[async]==0.2.1
     # via odc-stats
 odc-dscache==0.2.0a3
@@ -334,6 +338,7 @@ toolz==0.11.2
     #   dask
     #   datacube
     #   distributed
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-algo
     #   odc-dscache
     #   odc-stac
@@ -358,6 +363,7 @@ xarray==0.20.1
     # via
     #   datacube
     #   eodatasets3
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-algo
     #   odc-stac
     #   odc-stats

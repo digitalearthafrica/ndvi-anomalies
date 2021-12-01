@@ -4,12 +4,15 @@ import io
 import os
 from setuptools import find_packages, setup
 
-# Where are we?
-IS_DEAFRICA_SANDBOX = ('sandbox' in os.getenv('JUPYTER_IMAGE', default=''))
-
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "odc-stats"
+    "datacube",
+    "numpy",
+    "odc-algo",
+    "odc-stats",
+    "toolz",
+    "xarray"
+
 ]
 
 # Package meta-data.
@@ -38,7 +41,7 @@ setup_kwargs = {
     "author_email": EMAIL,
     "python_requires": REQUIRES_PYTHON,
     "url": URL,
-    "install_requires": REQUIRED if not IS_DEAFRICA_SANDBOX else [],
+    "install_requires": REQUIRED,
     "packages": find_packages(),
     "include_package_data": True,
     "license": "Apache License 2.0"

@@ -2,7 +2,6 @@ from toolz import get_in
 import xarray as xr
 import numpy as np
 from functools import partial
-from odc.stats.model import Task
 from datacube.utils import masking
 from odc.algo import keep_good_only, erase_bad
 from odc.algo._masking import _xr_fuse, _first_valid_np, mask_cleanup, _fuse_or_np
@@ -156,15 +155,15 @@ class NDVIClimatology(StatsPluginInterface):
             if product not in product_dss:
                 product_dss[product] = []
             product_dss[product].append(dataset)
-        
-        #seperate out 5,7 datasets so we can handle
+
+        # Separate out 5,7 datasets so we can handle
         ls57_dss = []
         if "ls5_sr" in product_dss:
             ls57_dss = ls57_dss + product_dss["ls5_sr"]
-        
+
         if "ls7_sr" in product_dss:
             ls57_dss = ls57_dss + product_dss["ls7_sr"]
-        
+
         # load landsat 5 and/or 7
         ls57 = load_with_native_transform(
             dss=ls57_dss,
@@ -246,7 +245,7 @@ class NDVIClimatology(StatsPluginInterface):
         cc = xx[["cloud_mask"]]
         xx = xx.drop_vars(["cloud_mask"])
 
-        ## climatology calulations
+        # Climatology calulations
         months = {
             "jan": [1],
             "feb": [2],
@@ -265,28 +264,24 @@ class NDVIClimatology(StatsPluginInterface):
         # calculate the climatologies for each month
         xx_mean = xx.groupby(xx.spec["time.month"]).mean()
         xx_std = xx.groupby(xx.spec["time.month"]).std()
-        cc = cc.groupby(cc.spec["time.month"]).sum() # total clear obs/month
+        cc = cc.groupby(cc.spec["time.month"]).sum()  # total clear obs/month
 
         # loop throuhg months, select out arrays, rename
         ndvi_var_mean = []
         ndvi_var_std = []
         pq = []
         for m in months:
-            #mean
+            # mean
             ix_mean = xx_mean.sel(month=months[m])
-            ix_mean = (
-                ix_mean.to_array(name="mean_" + m).drop("variable").squeeze()
-            )
-            #std dev
+            ix_mean = ix_mean.to_array(name="mean_" + m).drop("variable").squeeze()
+            # std dev
             ix_std = xx_std.sel(month=months[m])
-            ix_std = (
-                ix_std.to_array(name="std_" + m).drop("variable").squeeze()
-            )
-            #count
+            ix_std = ix_std.to_array(name="std_" + m).drop("variable").squeeze()
+            # count
             ix_count = cc.sel(month=months[m])
             ix_count = ix_count.to_array(name="count_" + m).drop("variable").squeeze()
-            
-            #appned da's to lists
+
+            # appned da's to lists
             ndvi_var_mean.append(ix_mean)
             ndvi_var_std.append(ix_std)
             pq.append(ix_count)
