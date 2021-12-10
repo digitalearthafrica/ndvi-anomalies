@@ -1,19 +1,19 @@
-<<<<<<< HEAD
-# Digital Earth Africa Continental NDVI Anomaly Mask
+<img align="centre" src="figs/Github_banner.jpg" width="101%">
+
+# Digital Earth Africa Continental NDVI Anomalies
 
 ## Background
 
-Production of Landsat resolution NDVI anomalies for the Africa continent
-Standadised NDVI Anomaly provide alternative measures of the relative vegetation health. These indices can be used to monitor the areas where vegetation may be stressed, as a proxy to detect potential drought.
-
+Production of Landsat resolution NDVI standardised anomalies for the Africa continent.  Standadised NDVI Anomalies provide alternative measures of the relative vegetation health. These indices can be used to monitor the areas where vegetation may be stressed, and as a proxy to detect potential drought.
 
 ## Description
 
 The Standardized NDVI Anomaly will have the following specifications:
 
 * Developed using Landsat 5,7,and 8 satellite imagery
+* Monthly temporal frequency
 * Have a spatial resolution of 30 metres
-* Climatology data from 1985 to 2020 
+* Monthly NDVI climatologies are based on data from 1985 to 2020
 
 ## Updating the pip requirements
 
