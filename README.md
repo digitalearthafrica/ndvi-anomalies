@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Digital Earth Africa Continental NDVI Anomaly Mask
 
 ## Background
@@ -14,6 +15,12 @@ The Standardized NDVI Anomaly will have the following specifications:
 * Have a spatial resolution of 30 metres
 * Climatology data from 1985 to 2020 
 
+## Updating the pip requirements
+
+Fix any requirement versions in `docker/fixed-requirements.txt`
+
+Install `pip-compile` and then run `pip-compile --output-file=docker/requirements.txt production/ndvi_tools/setup.py docker/fixed-requirements.txt`.
+
 
 ## Additional information
 
@@ -22,3 +29,4 @@ Digital Earth Africa data is licensed under the [Creative Commons by Attribution
 
 **Contact:** If you need assistance, please post a question on the [Open Data Cube Slack channel](http://slack.opendatacube.org/) or on the [GIS Stack Exchange](https://gis.stackexchange.com/questions/ask?tags=open-data-cube) using the `open-data-cube` tag (you can view previously asked questions [here](https://gis.stackexchange.com/questions/tagged/open-data-cube)).
 If you would like to report an issue with this notebook, you can file one on [Github](https://github.com/digitalearthafrica/crop-mask/issues).
+

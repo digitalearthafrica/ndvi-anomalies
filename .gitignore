@@ -5,3 +5,4 @@
 __pycache__
 dask-worker-space
 /.idea/
+production/ndvi_tools/ndvi_tools.egg-info
