@@ -23,17 +23,22 @@ This sections focuses
     
 2. HL8L7_harmonization
     
-    linear equations used to determine the Coeefficeint landsat 5 and 7 NDVI is calculated in this notebook.
+    This notebooks generates the cooefficeient values for landsat 5 and landsat 7 NDVI to make it harmonise with Landsat  The slope, intercept and MAE are derived and the results are plotted out.
 
 3. HL8L7_timeseries
 
-    After applying the ndvi coefficient to landsat 5 and 7 NDVI, a time series analysis is plot at 
-    selected regions.
+    This notebook plots time series analysis of selected regions, After applying the ndvi coefficient to landsat 5 and 7 to harmonize with Landsat 8.
 
 4. Vegetation_anomalies_seasonal
 
+    This notebook will calculate seasonal _standardised_ NDVI anomalies with the harmonization of the landsat for any given season and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
+        
+
 
 5. Vegetation_anomalies_monthly
+
+     This notebook will calculate seasonal _standardised_ NDVI anomalies with the harmonization of the landsat for any given month and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
+        
 
 
 
