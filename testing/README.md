@@ -1,4 +1,4 @@
-<img align="centre" src="figs/Github_banner.jpg" width="101%">
+<img align="centre" src="../figs/Github_banner.jpg" width="101%">
 
 # Digital Earth Africa Continental Testing Folder
 
