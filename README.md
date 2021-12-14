@@ -4,13 +4,17 @@
 
 ## Background
 
-Production of Landsat resolution NDVI standardised anomalies for the Africa continent.  Standadised NDVI Anomalies provide alternative measures of the relative vegetation health. These indices can be used to monitor the areas where vegetation may be stressed, and as a proxy to detect potential drought.
+Standadised NDVI Anomalies provide alternative measures of the relative vegetation health. These indices can be used to monitor areas where vegetation may be stressed, and as a proxy to detect potential drought.Standadised NDVI anomalies are departures from long-term averages. Negative values represent a reduction from normal NDVI, while positive values represent an increase from normal.
+
+
+DE Africa Production of Landsat resolution NDVI standardised anomalies for the Africa continent. 
 
 ## Description
 
 The Standardized NDVI Anomaly will have the following specifications:
 
 * Developed using Landsat 5,7,and 8 satellite imagery
+* Harmonization of the Landsat 5,7 with 8.
 * Monthly temporal frequency
 * Have a spatial resolution of 30 metres
 * Monthly NDVI climatologies are based on data from 1985 to 2020
