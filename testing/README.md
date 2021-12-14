@@ -27,17 +27,17 @@ This sections focuses
 
 3. HL8L7_timeseries
 
-    This notebook plots time series analysis of selected regions, After applying the ndvi coefficient to landsat 5 and 7 to harmonize with Landsat 8.
+    This notebook plots time series analysis of selected regions before and after applying the ndvi coefficient to landsat 5 and 7 to harmonize with Landsat 8.
 
 4. Vegetation_anomalies_seasonal
 
-    This notebook will calculate seasonal _standardised_ NDVI anomalies with the harmonization of the landsat for any given season and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
+    This notebook calculate seasonal _standardised_ NDVI anomalies with the harmonization of the landsat for any given season and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
         
 
 
 5. Vegetation_anomalies_monthly
 
-     This notebook will calculate seasonal _standardised_ NDVI anomalies with the harmonization of the landsat for any given month and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
+     This notebook will calculate monthly _standardised_ NDVI anomalies with the harmonization of the landsat for any given month and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
         
 
 
