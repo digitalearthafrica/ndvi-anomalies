@@ -37,7 +37,7 @@ This sections focuses
 
 5. Vegetation_anomalies_monthly
 
-     This notebook will calculate monthly _standardised_ NDVI anomalies with the harmonization of the landsat for any given month and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
+     This notebook calculate monthly _standardised_ NDVI anomalies with the harmonization of the landsat for any given month and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
         
 
 
