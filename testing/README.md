@@ -14,7 +14,7 @@ This sections focuses
 * Testing of the Harmonization Equation on the Landsat collection 2
 
 
-### Below give a Summary of each notebook
+### Below give summary of each notebook
 
 1. HL87_continental_data_collection
     
