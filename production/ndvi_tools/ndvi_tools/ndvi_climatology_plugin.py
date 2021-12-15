@@ -16,7 +16,7 @@ from odc.stats.plugins._registry import register
 class NDVIClimatology(StatsPluginInterface):
     NAME = "NDVIClimatology"
     SHORT_NAME = NAME
-    VERSION = "0.0.1"
+    VERSION = "1.0.0"
     PRODUCT_FAMILY = "statistics"
 
     def __init__(
