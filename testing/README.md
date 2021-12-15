@@ -10,24 +10,35 @@ Landsat satellites have the longest temporal record of earth observations data, 
 This sections focuses 
 
 * Continental data collection for harmonizing ARD Landsat 5-7 with Landsat 8
-* Determining the equation for Harmonization of the Landsat collection 2
+* Determining the coefficients for ndvi Harmonization of the Landsat collection 2
 * Testing of the Harmonization Equation on the Landsat collection 2
 
 
-### Below give a Summary of each notebook
+### Below give summary of each notebook
 
 1. HL87_continental_data_collection
-
-
+    
+    This notebook oulines the process of collection training samples across the africa continent using  `collect_training_data` function.
+    
+    
 2. HL8L7_harmonization
-
+    
+    This notebooks generates the cooefficeient values for landsat 5 and landsat 7 NDVI to make it harmonise with Landsat  The slope, intercept and MAE are derived and the results are plotted out.
 
 3. HL8L7_timeseries
 
+    This notebook plots time series analysis of selected regions before and after applying the ndvi coefficient to landsat 5 and 7 to harmonize with Landsat 8.
+
 4. Vegetation_anomalies_seasonal
+
+    This notebook calculate seasonal _standardised_ NDVI anomalies with the harmonization of the landsat for any given season and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
+        
 
 
 5. Vegetation_anomalies_monthly
+
+     This notebook calculate monthly _standardised_ NDVI anomalies with the harmonization of the landsat for any given month and year. The long-term seasonal climatologies (both mean and standard deviation) are calculated on-the-fly.
+        
 
 
 
