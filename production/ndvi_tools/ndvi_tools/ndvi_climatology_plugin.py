@@ -276,7 +276,7 @@ class NDVIClimatology(StatsPluginInterface):
             ix_mean = ix_mean.to_array(name="mean_" + m).drop("variable").squeeze()
             # std dev
             ix_std = xx_std.sel(month=months[m])
-            ix_std = ix_std.to_array(name="std_" + m).drop("variable").squeeze()
+            ix_std = ix_std.to_array(name="stddev_" + m).drop("variable").squeeze()
             # count
             ix_count = cc.sel(month=months[m])
             ix_count = ix_count.to_array(name="count_" + m).drop("variable").squeeze()
