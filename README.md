@@ -1,23 +1,18 @@
 <img align="centre" src="figs/Github_banner.jpg" width="101%">
 
-# Digital Earth Africa Continental NDVI Anomalies
+# Digital Earth Africa Continental NDVI Standardised Anomalies
 
 ## Background
 
-Standadised NDVI Anomalies provide alternative measures of the relative vegetation health. These indices can be used to monitor areas where vegetation may be stressed, and as a proxy to detect potential drought.Standadised NDVI anomalies are departures from long-term averages. Negative values represent a reduction from normal NDVI, while positive values represent an increase from normal.
-
-
-DE Africa Production of Landsat resolution NDVI standardised anomalies for the Africa continent. 
+Standardised NDVI Anomalies provide a measure of the vegetation health relative to long term average conditions by measuring the departure, in units of standard devaiations, away from the long-term average. These indices can be used to monitor areas where vegetation may be stressed, and as a proxy to detect potential drought. Negative values represent a reduction from normal NDVI, while positive values represent an increase from normal.
 
 ## Description
 
 The Standardized NDVI Anomaly will have the following specifications:
 
-* Developed using Landsat 5,7,and 8 satellite imagery
-* Harmonization of the Landsat 5,7 with 8.
-* Monthly temporal frequency
-* Have a spatial resolution of 30 metres
-* Monthly NDVI climatologies are based on data from 1985 to 2020
+* NDVI 'climatologies' are developed using harmonsized Landsat 5,7,and 8 satellite imagery from the years 1984 to 2020
+* Anomalies will have monthly temporal frequency
+* All datasets will have a spatial resolution of 30 metres
 
 ## Updating the pip requirements
 

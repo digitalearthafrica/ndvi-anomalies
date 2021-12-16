@@ -1,6 +1,6 @@
 <img align="centre" src="../figs/Github_banner.jpg" width="101%">
 
-# Digital Earth Africa Continental Testing Folder
+# Testing Folder
 
 ### Background 
 
@@ -12,7 +12,6 @@ This sections focuses
 * Continental data collection for harmonizing ARD Landsat 5-7 with Landsat 8
 * Determining the coefficients for ndvi Harmonization of the Landsat collection 2
 * Testing of the Harmonization Equation on the Landsat collection 2
-
 
 ### Below give summary of each notebook
 
