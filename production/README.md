@@ -4,6 +4,11 @@
 
 ### Background 
 
+## Monitoring production runs with Grafana
+
+Dev:  https://mgmt.dev.digitalearth.africa/d/NDVIClimAnomalies/landsat-ndvi-anomalies
+Prod:
+
 ## Additional information
 
 **License:** The code in this notebook is licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
