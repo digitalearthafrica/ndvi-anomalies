@@ -134,7 +134,9 @@ frozenlist==1.2.0
     #   aiohttp
     #   aiosignal
 fsspec==2021.11.1
-    # via dask
+    # via
+    #   dask
+    #   ndvi-tools (production/ndvi_tools/setup.py)
 greenlet==1.1.2
     # via sqlalchemy
 heapdict==1.0.1
@@ -213,7 +215,9 @@ odc-algo==0.2.1
 odc-cloud[async]==0.2.1
     # via odc-stats
 odc-dscache==0.2.0a3
-    # via odc-stats
+    # via
+    #   ndvi-tools (production/ndvi_tools/setup.py)
+    #   odc-stats
 odc-stac==0.2.2
     # via
     #   odc-algo
@@ -228,6 +232,7 @@ packaging==21.3
 pandas==1.3.4
     # via
     #   datacube
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-stac
     #   odc-stats
     #   xarray

@@ -10,9 +10,11 @@ REQUIRED = [
     "numpy",
     "odc-algo",
     "odc-stats",
+    "odc-dscache",
     "toolz",
-    "xarray"
-
+    "xarray",
+    "fsspec",
+    "pandas"
 ]
 
 # Package meta-data.

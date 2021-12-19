@@ -5,6 +5,10 @@ ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 # Add in the dask configuration
 COPY docker/distributed.yaml /etc/dask/distributed.yaml
 
+#ading in geojson extents
+COPY testing/data/testing_extent.geojson testing_extent.geojson
+COPY testing/data/africa_land_extent.geojson africa_land_extent.geojson
+
 # Install system tools
 RUN apt-get update \
     && apt-get install software-properties-common -y
