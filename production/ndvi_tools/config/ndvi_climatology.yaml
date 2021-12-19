@@ -6,7 +6,6 @@ plugin_config:
   harmonization_slope: 0.988
   harmonization_intercept: -0.015
   mask_filters: [["opening", 5], ["dilation", 5]]
-  work_chunks: {"x":2000, "y": 2000}
   flags_ls57:
     cloud: "high_confidence"
     cloud_shadow: "high_confidence"
