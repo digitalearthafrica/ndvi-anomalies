@@ -37,7 +37,7 @@ class NDVIClimatology(StatsPluginInterface):
         ),
         nodata_flags: Dict[str, Optional[Any]] = dict(nodata=False),
         filters: Optional[Iterable[Tuple[str, int]]] = None,
-        work_chunks: Dict[str, Optional[Any]] = dict(x=1000, y=1000),
+        work_chunks: Dict[str, Optional[Any]] = dict(x=2000, y=2000),
         scale: float = 0.0000275,
         offset: float = -0.2,
         output_dtype: str = "float32",
