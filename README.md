@@ -18,7 +18,7 @@ The Standardized NDVI Anomaly will have the following specifications:
 
 Fix any requirement versions in `docker/fixed-requirements.txt`
 
-Install `pip-compile` and then run `pip-compile --output-file=docker/requirements.txt production/ndvi_tools/setup.py docker/fixed-requirements.txt`.
+Install `pip-tools` and then run `pip-compile --output-file=docker/requirements.txt production/ndvi_tools/setup.py docker/fixed-requirements.txt`.
 
 
 ## Additional information
