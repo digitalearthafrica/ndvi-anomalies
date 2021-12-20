@@ -46,7 +46,11 @@ setup_kwargs = {
     "install_requires": REQUIRED,
     "packages": find_packages(),
     "include_package_data": True,
-    "license": "Apache License 2.0"
+    "license": "Apache License 2.0",
+    "entry_points": {
+        "console_scripts": [
+            "cm-task = ndvi_tools.geojson_defined_tasks:main"]
+    },
 }
 
 setup(**setup_kwargs)
