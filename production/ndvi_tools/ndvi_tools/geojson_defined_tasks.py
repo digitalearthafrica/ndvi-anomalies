@@ -15,7 +15,7 @@ def gen_args():
     parse.add_argument("--geojson", help="the absolute path of the geojson file")
     parse.add_argument("--grid",
                        help="the tiling grid to use e.g. africa_10",
-                      default='africa_10')
+                      default='africa_30')
     parse.add_argument("--outfile", help="output task file")
     parse.add_argument(
         "--publish",
