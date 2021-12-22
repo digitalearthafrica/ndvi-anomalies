@@ -1,6 +1,6 @@
 <img align="centre" src="../figs/Github_banner.jpg" width="101%">
 
-# Digital Earth Africa Continental NDVI Anomlues Production Folder
+# Digital Earth Africa Continental NDVI Anomlies Production Folder
 
 ### Background 
 
