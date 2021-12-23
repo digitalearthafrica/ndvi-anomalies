@@ -37,7 +37,7 @@ class NDVIClimatology(StatsPluginInterface):
         ),
         nodata_flags: Dict[str, Optional[Any]] = dict(nodata=False),
         filters: Optional[Iterable[Tuple[str, int]]] = None,
-        work_chunks: Dict[str, Optional[Any]] = dict(x=1100, y=1100),
+        work_chunks: Dict[str, Optional[Any]] = dict(x=1600, y=1600),
         scale: float = 0.0000275,
         offset: float = -0.2,
         output_dtype: str = "float32",
@@ -141,14 +141,13 @@ class NDVIClimatology(StatsPluginInterface):
             nodata_mask, _ = masking.create_mask_value(flags_def,
                                                        **self.nodata_flags)
             keeps = (mask_band & nodata_mask) == 0
-            
             xx = keep_good_only(xx, valid)  # remove negative pixels
             xx = keep_good_only(xx, keeps)  # remove nodata pixels
             
             # add the pq layers to the dataset
             xx["cloud_mask"] = cloud_mask
+            keeps = xr.ufuncs.logical_or(keeps, valid) #combine to reduce data volume
             xx["keeps"] = keeps
-            xx["valid"] = valid
 
             return xx
 
@@ -215,14 +214,13 @@ class NDVIClimatology(StatsPluginInterface):
 
             cloud_mask = ds[k]["cloud_mask"]
             keeps = ds[k]["keeps"]
-            valid = ds[k]["valid"]
             
             if self.filters is not None:
                 cloud_mask = mask_cleanup(cloud_mask,
                                           mask_filters=self.filters)
 
             # erase pixels with dilated cloud
-            ds[k] = ds[k].drop_vars(["cloud_mask", "keeps", "valid"])
+            ds[k] = ds[k].drop_vars(["cloud_mask", "keeps"])
             ds[k] = erase_bad(ds[k], cloud_mask)
 
             # rescale bands into surface reflectance scale
@@ -241,7 +239,6 @@ class NDVIClimatology(StatsPluginInterface):
             # add back pq layers
             ds[k]["cloud_mask"] = cloud_mask
             ds[k]["keeps"] = keeps
-            ds[k]["valid"] = valid
             
             # calculate ndvi
             ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
@@ -269,8 +266,8 @@ class NDVIClimatology(StatsPluginInterface):
         and std. dev.
         """
         #  seperate the pq layers from the dataset
-        pq = xx[["cloud_mask", "keeps", "valid"]]
-        xx = xx.drop_vars(["cloud_mask", "keeps", "valid"])
+        pq = xx[["cloud_mask", "keeps"]]
+        xx = xx.drop_vars(["cloud_mask", "keeps"])
 
         # Climatology calulations
         months = {
@@ -294,8 +291,8 @@ class NDVIClimatology(StatsPluginInterface):
         
         # calculate the clear count for each month
         cm_r = xr.ufuncs.logical_not(pq["cloud_mask"]) #invert cloud mask
-        good = xr.ufuncs.logical_and(pq["valid"], pq["keeps"]) # combine good obs
-        cc = xr.ufuncs.logical_and(cm_r, good) #combine all pq into "clear count"
+        cc = xr.ufuncs.logical_and(cm_r, pq["keeps"]) # combine good obs
+        #cc = xr.ufuncs.logical_and(cm_r, good) #combine all pq into "clear count"
         cc = cc.to_dataset(name='clear_count')
         cc = cc.groupby(cc.spec["time.month"]).sum() # clear count / month
 
