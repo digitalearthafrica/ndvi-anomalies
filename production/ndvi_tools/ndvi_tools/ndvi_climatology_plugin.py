@@ -292,7 +292,6 @@ class NDVIClimatology(StatsPluginInterface):
         # calculate the clear count for each month
         cm_r = xr.ufuncs.logical_not(pq["cloud_mask"]) #invert cloud mask
         cc = xr.ufuncs.logical_and(cm_r, pq["keeps"]) # combine good obs
-        #cc = xr.ufuncs.logical_and(cm_r, good) #combine all pq into "clear count"
         cc = cc.to_dataset(name='clear_count')
         cc = cc.groupby(cc.spec["time.month"]).sum() # clear count / month
 
@@ -314,7 +313,7 @@ class NDVIClimatology(StatsPluginInterface):
             # count
             ix_count = cc.sel(month=months[m])
             ix_count = ix_count.to_array(name="count_" +m).drop("variable").squeeze()
-            ix_count = ix_count.astype(np.int8)
+            ix_count = ix_count.astype(np.int16)
 
             # append da's to lists
             ndvi_var_mean.append(ix_mean)
