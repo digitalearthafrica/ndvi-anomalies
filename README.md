@@ -4,7 +4,7 @@
 
 ## Background
 
-Standardised NDVI Anomalies provide a measure of the vegetation health relative to long term average conditions by measuring the departure, in units of standard devaiations, away from the long-term average. These indices can be used to monitor areas where vegetation may be stressed, and as a proxy to detect potential drought. Negative values represent a reduction from normal NDVI, while positive values represent an increase from normal.
+Standardised NDVI Anomalies provide a measure of vegetation health relative to long term average conditions by measuring the departure, in units of standard devaiations, away from the long-term average. These indices can be used to monitor areas where vegetation may be stressed, and as a proxy to detect potential drought. Negative values represent a reduction from normal NDVI, while positive values represent an increase from normal.
 
 ## Description
 
