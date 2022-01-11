@@ -67,12 +67,12 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
 
 ### Other useful run notes
 
-The following commands can only be run in dev-box if the devbox has access to the k8s cluster. To connect your devbox to the cluster run:
+The following commands can only be run in a devbox. To connect your devbox to the cluster run:
          
          setup_aws_vault deafrica-dev-eks
          ap deafrica-dev-eks
          
-* The dev and prod cluster are called:  **DEV Cluster:** `deafrica-dev-eks`, **PROD Cluster:** `deafrica-prod-af-eks`
+The dev and prod cluster are called:  **DEV Cluster:** `deafrica-dev-eks`, **PROD Cluster:** `deafrica-prod-af-eks`
 
 
 * To list tiles in a s3 bucket; useful to know if results have been successfully written to disk
