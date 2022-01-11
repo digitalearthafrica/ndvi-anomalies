@@ -27,9 +27,9 @@ class NDVIClimatology(StatsPluginInterface):
         harmonization_slope: float = None,
         harmonization_intercept: float = None,
         group_by: str = "solar_day",
-        flags_ls57: Dict[str,
-                         Optional[Any]] = dict(cloud="high_confidence",
-                                               cloud_shadow="high_confidence"),
+        flags_ls57: Dict[str, Optional[Any]] = dict(
+            cloud="high_confidence", cloud_shadow="high_confidence"
+        ),
         flags_ls8: Dict[str, Optional[Any]] = dict(
             cloud="high_confidence",
             cloud_shadow="high_confidence",
@@ -104,8 +104,7 @@ class NDVIClimatology(StatsPluginInterface):
     def measurements(self) -> Tuple[str, ...]:
         return self.output_bands
 
-    def input_data(self, datasets: Sequence[Dataset],
-                   geobox: GeoBox) -> xr.Dataset:
+    def input_data(self, datasets: Sequence[Dataset], geobox: GeoBox) -> xr.Dataset:
         """
         Load each of the sensors, remove cloud and poor data,
         apply scaling coefficients to LS5 & 7 NDVI to mimic
@@ -123,10 +122,10 @@ class NDVIClimatology(StatsPluginInterface):
             5. Add cloud_mask band to xx for fuser and reduce
             """
 
-            # remove negative pixels - a pixel is invalid if any of the band is smaller than masking_scale
-            valid = ((xx[self.bands] >
-                      (-1.0 * self.offset / self.scale)).to_array(
-                          dim="band").all(dim="band"))
+            # remove negative pixels, and pixels > than the maxiumum valid range for LS (65,455)
+            valid = ((xx[self.bands] > (-1.0 * self.offset / self.scale)) & (
+                xx[self.bands] < 65455
+            )).to_array(dim="band").all(dim="band")
 
             mask_band = xx[self.mask_band]
             xx = xx.drop_vars([self.mask_band])
@@ -138,15 +137,14 @@ class NDVIClimatology(StatsPluginInterface):
             cloud_mask = (mask_band & mask) != 0
 
             # set no_data bitmask - True=data, False=no-data
-            nodata_mask, _ = masking.create_mask_value(flags_def,
-                                                       **self.nodata_flags)
+            nodata_mask, _ = masking.create_mask_value(flags_def, **self.nodata_flags)
             keeps = (mask_band & nodata_mask) == 0
             xx = keep_good_only(xx, valid)  # remove negative pixels
             xx = keep_good_only(xx, keeps)  # remove nodata pixels
-            
+
             # add the pq layers to the dataset
             xx["cloud_mask"] = cloud_mask
-            keeps = xr.ufuncs.logical_or(keeps, valid) #combine to reduce data volume
+            keeps = xr.ufuncs.logical_or(keeps, valid)  # combine to reduce data volume
             xx["keeps"] = keeps
 
             return xx
@@ -167,7 +165,7 @@ class NDVIClimatology(StatsPluginInterface):
         if "ls7_sr" in product_dss:
             ls57_dss = ls57_dss + product_dss["ls7_sr"]
 
-        # load landsat 5 and/or 7. We need to wrap this in a 
+        # load landsat 5 and/or 7. We need to wrap this in a
         # try-except because some tiles don't have ls57 data
         try:
             ls57 = load_with_native_transform(
@@ -202,22 +200,21 @@ class NDVIClimatology(StatsPluginInterface):
             ls57_exists = False
         else:
             ls57_exists = True
-        
+
         # add datasets to dict
         if ls57_exists:
             ds = dict(ls57=ls57, ls8=ls8)
         else:
             ds = dict(ls8=ls8)
-        
+
         # Loop through datasets, rescale to SR, calculate NDVI
         for k in ds:
 
             cloud_mask = ds[k]["cloud_mask"]
             keeps = ds[k]["keeps"]
-            
+
             if self.filters is not None:
-                cloud_mask = mask_cleanup(cloud_mask,
-                                          mask_filters=self.filters)
+                cloud_mask = mask_cleanup(cloud_mask, mask_filters=self.filters)
 
             # erase pixels with dilated cloud
             ds[k] = ds[k].drop_vars(["cloud_mask", "keeps"])
@@ -230,8 +227,7 @@ class NDVIClimatology(StatsPluginInterface):
                 # rescale
                 ds[k][band] = self.scale * ds[k][band] + self.offset
                 #  apply nodata_mask - reset nodata pixels to output-nodata
-                ds[k][band] = ds[k][band].where(~nodata_mask,
-                                                self.output_nodata)
+                ds[k][band] = ds[k][band].where(~nodata_mask, self.output_nodata)
                 # set data-type and nodata attrs
                 ds[k][band] = ds[k][band].astype(self.output_dtype)
                 ds[k][band].attrs["nodata"] = self.output_nodata
@@ -239,7 +235,7 @@ class NDVIClimatology(StatsPluginInterface):
             # add back pq layers
             ds[k]["cloud_mask"] = cloud_mask
             ds[k]["keeps"] = keeps
-            
+
             # calculate ndvi
             ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
 
@@ -249,9 +245,9 @@ class NDVIClimatology(StatsPluginInterface):
         if ls57_exists:
             # scaling of 5-7 NDVI to match NDVI 8
             ds["ls57"]["ndvi"] = (
-                ds["ls57"]["ndvi"] -
-                self.harmonization_intercept) / self.harmonization_slope
-    
+                ds["ls57"]["ndvi"] - self.harmonization_intercept
+            ) / self.harmonization_slope
+
             # combine harmonized datarrays
             ndvi = ds["ls57"].combine_first(ds["ls8"])
 
@@ -288,12 +284,12 @@ class NDVIClimatology(StatsPluginInterface):
         # calculate the climatologies for each month
         xx_mean = xx.groupby(xx.spec["time.month"]).mean()
         xx_std = xx.groupby(xx.spec["time.month"]).std()
-        
+
         # calculate the clear count for each month
-        cm_r = xr.ufuncs.logical_not(pq["cloud_mask"]) #invert cloud mask
-        cc = xr.ufuncs.logical_and(cm_r, pq["keeps"]) # combine good obs
-        cc = cc.to_dataset(name='clear_count')
-        cc = cc.groupby(cc.spec["time.month"]).sum() # clear count / month
+        cm_r = xr.ufuncs.logical_not(pq["cloud_mask"])  # invert cloud mask
+        cc = xr.ufuncs.logical_and(cm_r, pq["keeps"])  # combine good obs
+        cc = cc.to_dataset(name="clear_count")
+        cc = cc.groupby(cc.spec["time.month"]).sum()  # clear count / month
 
         # loop through months, select out arrays, rename
         ndvi_var_mean = []
@@ -302,17 +298,17 @@ class NDVIClimatology(StatsPluginInterface):
         for m in months:
             # mean
             ix_mean = xx_mean.sel(month=months[m])
-            ix_mean = ix_mean.to_array(name="mean_" +m).drop("variable").squeeze()
+            ix_mean = ix_mean.to_array(name="mean_" + m).drop("variable").squeeze()
             ix_mean = ix_mean.astype(np.float32)
-            
+
             # std dev
             ix_std = xx_std.sel(month=months[m])
-            ix_std = ix_std.to_array(name="stddev_" +m).drop("variable").squeeze()
+            ix_std = ix_std.to_array(name="stddev_" + m).drop("variable").squeeze()
             ix_std = ix_std.astype(np.float32)
-            
+
             # count
             ix_count = cc.sel(month=months[m])
-            ix_count = ix_count.to_array(name="count_" +m).drop("variable").squeeze()
+            ix_count = ix_count.to_array(name="count_" + m).drop("variable").squeeze()
             ix_count = ix_count.astype(np.int16)
 
             # append da's to lists
@@ -321,8 +317,9 @@ class NDVIClimatology(StatsPluginInterface):
             pq.append(ix_count)
 
         # merge them all into one dataset
-        clim = xr.merge(ndvi_var_mean + ndvi_var_std + pq,
-                        compat="override").drop("month")
+        clim = xr.merge(ndvi_var_mean + ndvi_var_std + pq, compat="override").drop(
+            "month"
+        )
 
         return clim
 
@@ -331,8 +328,9 @@ class NDVIClimatology(StatsPluginInterface):
         Fuse cloud_mask with OR
         """
         cloud_mask = xx["cloud_mask"]
-        xx = _xr_fuse(xx.drop_vars(["cloud_mask"]),
-                      partial(_first_valid_np, nodata=0), "")
+        xx = _xr_fuse(
+            xx.drop_vars(["cloud_mask"]), partial(_first_valid_np, nodata=0), ""
+        )
         xx["cloud_mask"] = _xr_fuse(cloud_mask, _fuse_or_np, cloud_mask.name)
 
         return xx
