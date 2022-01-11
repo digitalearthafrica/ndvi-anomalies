@@ -2,7 +2,7 @@
 
 # Continental NDVI Anomalies - Production
 
-The code base here provides all the methods necessary for running the NDVI anomalies pipeline using AWS's Kubernetes platform. The methods rely on the Open Data Cube's [Statistician](https://github.com/opendatacube/odc-stats) library for orchestrating the computation on AWS's cloud infrastructure. Argo is used for deploying the code on kubernetes. Argo is a tool that simplifies orchestrating parallel job on kubernetes.
+The code base here provides all the methods necessary for running the NDVI anomalies pipeline using AWS's Kubernetes platform. The methods rely on the Open Data Cube's [Statistician](https://github.com/opendatacube/odc-stats) library for orchestrating the computation on AWS's cloud infrastructure. Argo is used for deploying the code on kubernetes. Argo is a tool that simplifies orchestrating parallel jobs on kubernetes.
 
 ## How to build and install the `ndvi_tools` library
 
