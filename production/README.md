@@ -60,7 +60,9 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
      * Production CPU, memory, SQS monitoring: 
      * Dev CPU, memory, SQS monitoring: https://mgmt.dev.digitalearth.africa/d/NDVIClimAnomalies/landsat-ndvi-anomalies
 
-6. To check the logs of any pod, you can click on one of the pods that displays in Argo after you hit submit and then click the `logs` button 
+6. To check the logs of any pod, you can click on one of the pods that displays in Argo after you hit submit and then click the `logs` button. For more detailed log, within the grafana dashboard linked above navigate to 'explore --> Loki' tab, and enter a pod-name in the query as per the example in the screenshot below. 
+
+<img align="centre" src="../figs/grafana_logs.PNG" width="80%">
 
 
 ### Other useful run notes
