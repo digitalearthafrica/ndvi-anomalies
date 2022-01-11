@@ -77,16 +77,16 @@ The dev and prod cluster are called:  **DEV Cluster:** `deafrica-dev-eks`, **PRO
 
 * To list tiles in a s3 bucket; useful to know if results have been successfully written to disk
         
-        aws s3 ls s3://deafrica-data-dev-af/ndvi_climatologies_ls/
+        aws s3 ls s3://deafrica-data-dev-af/ndvi_climatology_ls/
         
 * To sync (copy) results in a s3 bucket to your local machine
         
-        aws s3 sync s3://deafrica-data-dev-af/ndvi_climatologies_ls/ ndvi_climatologies_ls
+        aws s3 sync s3://deafrica-data-dev-af/ndvi_climatology_ls/ ndvi_climatology_ls
         
 
 * If doing test runs, and you wish delete test geotifs from the dev bucket
         
-        aws s3 rm --recursive s3://deafrica-data-dev-af/ndvi_climatologies_ls --dryrun
+        aws s3 rm --recursive s3://deafrica-data-dev-af/ndvi_climatology_ls --dryrun
 
 ---
 ## Stage 2: NDVI Anomalies
