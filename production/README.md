@@ -53,7 +53,7 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
     * Hit the `submit` button when you're happy with the inputs and the code will be deployed.
     
     
-<img align="centre" src="../figs/ndvi_clim_argo.PNG" width="65%">
+<img align="center" src="../figs/ndvi_clim_argo.PNG" width="80%">
 
 5. To monitor the batch run you can use:
    
@@ -62,7 +62,7 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
 
 6. To check the logs of any pod, you can click on one of the pods that displays in Argo after you hit submit and then click the `logs` button. For more detailed logs, within the grafana dashboard linked above navigate to the 'explore --> Loki' tab and enter a pod-name in the query as per the example in the screenshot below. 
 
-<img align="centre" src="../figs/grafana_logs.PNG" width="80%">
+<img align="center" src="../figs/grafana_logs.PNG" width="80%">
 
 
 ### Other useful run notes
