@@ -260,8 +260,8 @@ class NDVIClimatology(StatsPluginInterface):
         else:
             ndvi = ds["ls8"]
         
-        # Remove negative NDVI values
-        ndvi = ndvi.where(ndvi>=0)
+        # Remove NDVI's that aren't between 0 and 1
+        ndvi = ndvi.where((ndvi>=0) & (ndvi<=1))
         
         return ndvi
 
