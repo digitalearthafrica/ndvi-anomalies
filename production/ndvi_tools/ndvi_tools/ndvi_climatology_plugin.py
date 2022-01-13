@@ -139,7 +139,7 @@ class NDVIClimatology(StatsPluginInterface):
             # set no_data bitmask - True=data, False=no-data
             nodata_mask, _ = masking.create_mask_value(flags_def, **self.nodata_flags)
             keeps = (mask_band & nodata_mask) == 0
-            xx = keep_good_only(xx, valid)  # remove negative pixels
+            xx = keep_good_only(xx, valid)  # remove negative and oversaturated pixels
             xx = keep_good_only(xx, keeps)  # remove nodata pixels
 
             # add the pq layers to the dataset
@@ -147,7 +147,8 @@ class NDVIClimatology(StatsPluginInterface):
             keeps = xr.ufuncs.logical_or(keeps, valid)  # combine to reduce data volume
             xx["keeps"] = keeps
             
-            #remove green and blue bands
+            # remove green and blue bands
+            # (only have these bands to ID more bad pixels e.g. 'tractor tread')
             xx = xx.drop_vars(["green", "blue"])
  
             return xx
@@ -160,7 +161,7 @@ class NDVIClimatology(StatsPluginInterface):
                 product_dss[product] = []
             product_dss[product].append(dataset)
 
-        # Separate out 5,7 datasets so we can handle
+        # Separate out LS5,7 datasets
         ls57_dss = []
         if "ls5_sr" in product_dss:
             ls57_dss = ls57_dss + product_dss["ls5_sr"]
@@ -212,10 +213,12 @@ class NDVIClimatology(StatsPluginInterface):
 
         # Loop through datasets, rescale to SR, calculate NDVI
         for k in ds:
-
+            
+            #seperate pq layers
             cloud_mask = ds[k]["cloud_mask"]
             keeps = ds[k]["keeps"]
-
+            
+            # morphological operators on cloud dataset to improve it
             if self.filters is not None:
                 cloud_mask = mask_cleanup(cloud_mask, mask_filters=self.filters)
 
@@ -242,11 +245,11 @@ class NDVIClimatology(StatsPluginInterface):
             # calculate ndvi
             ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
 
-            # remove sr bands
+            # remove remaining SR bands
             ds[k] = ds[k].drop_vars(['red', 'nir'])
 
         if ls57_exists:
-            # scaling of 5-7 NDVI to match NDVI 8
+            # harmonization of LS57 NDVI to match LS8 NDVI
             ds["ls57"]["ndvi"] = (
                 ds["ls57"]["ndvi"] - self.harmonization_intercept
             ) / self.harmonization_slope
@@ -256,7 +259,10 @@ class NDVIClimatology(StatsPluginInterface):
 
         else:
             ndvi = ds["ls8"]
-
+        
+        # Remove negative NDVI values
+        ndvi = ndvi.where(ndvi>=0)
+        
         return ndvi
 
     def reduce(self, xx: xr.Dataset) -> xr.Dataset:
