@@ -1,7 +1,7 @@
 plugin: ndvi_tools.ndvi_climatology_plugin.NDVIClimatology
 plugin_config:
   resampling: "bilinear"
-  bands: ["red", "nir"]
+  bands: ["red", "nir", "green", "blue"]
   mask_band: "QA_PIXEL"
   harmonization_slope: 0.988
   harmonization_intercept: -0.015

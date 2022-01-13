@@ -22,7 +22,7 @@ class NDVIClimatology(StatsPluginInterface):
     def __init__(
         self,
         resampling: str = "bilinear",
-        bands: Optional[Sequence[str]] = ["red", "nir"],
+        bands: Optional[Sequence[str]] = ["red", "nir", "green", "blue"],
         mask_band: str = "QA_PIXEL",
         harmonization_slope: float = None,
         harmonization_intercept: float = None,
@@ -146,7 +146,10 @@ class NDVIClimatology(StatsPluginInterface):
             xx["cloud_mask"] = cloud_mask
             keeps = xr.ufuncs.logical_or(keeps, valid)  # combine to reduce data volume
             xx["keeps"] = keeps
-
+            
+            #remove green and blue bands
+            xx = xx.drop_vars(["green", "blue"])
+ 
             return xx
 
         # seperate datsets into different sensors
@@ -239,8 +242,8 @@ class NDVIClimatology(StatsPluginInterface):
             # calculate ndvi
             ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
 
-            # remove red and nir
-            ds[k] = ds[k].drop_vars(["red", "nir"])
+            # remove sr bands
+            ds[k] = ds[k].drop_vars(['red', 'nir'])
 
         if ls57_exists:
             # scaling of 5-7 NDVI to match NDVI 8
