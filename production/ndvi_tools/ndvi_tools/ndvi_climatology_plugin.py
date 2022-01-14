@@ -144,8 +144,6 @@ class NDVIClimatology(StatsPluginInterface):
 
             # add the pq layers to the dataset
             xx["cloud_mask"] = cloud_mask
-            keeps = xr.ufuncs.logical_or(keeps, valid)  # combine to reduce data volume
-            xx["keeps"] = keeps
             
             # remove green and blue bands
             # (only have these bands to ID more bad pixels e.g. 'tractor tread')
@@ -216,14 +214,13 @@ class NDVIClimatology(StatsPluginInterface):
             
             #seperate pq layers
             cloud_mask = ds[k]["cloud_mask"]
-            keeps = ds[k]["keeps"]
             
             # morphological operators on cloud dataset to improve it
             if self.filters is not None:
                 cloud_mask = mask_cleanup(cloud_mask, mask_filters=self.filters)
 
             # erase pixels with dilated cloud
-            ds[k] = ds[k].drop_vars(["cloud_mask", "keeps"])
+            ds[k] = ds[k].drop_vars(["cloud_mask"]) #"keeps"
             ds[k] = erase_bad(ds[k], cloud_mask)
 
             # rescale bands into surface reflectance scale
@@ -237,10 +234,6 @@ class NDVIClimatology(StatsPluginInterface):
                 # set data-type and nodata attrs
                 ds[k][band] = ds[k][band].astype(self.output_dtype)
                 ds[k][band].attrs["nodata"] = self.output_nodata
-
-            # add back pq layers
-            ds[k]["cloud_mask"] = cloud_mask
-            ds[k]["keeps"] = keeps
 
             # calculate ndvi
             ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
@@ -270,9 +263,6 @@ class NDVIClimatology(StatsPluginInterface):
         Collapse the NDVI time series using mean
         and std. dev.
         """
-        #  seperate the pq layers from the dataset
-        pq = xx[["cloud_mask", "keeps"]]
-        xx = xx.drop_vars(["cloud_mask", "keeps"])
 
         # Climatology calulations
         months = {
@@ -293,12 +283,12 @@ class NDVIClimatology(StatsPluginInterface):
         # calculate the climatologies for each month
         xx_mean = xx.groupby(xx.spec["time.month"]).mean()
         xx_std = xx.groupby(xx.spec["time.month"]).std()
-
-        # calculate the clear count for each month
-        cm_r = xr.ufuncs.logical_not(pq["cloud_mask"])  # invert cloud mask
-        cc = xr.ufuncs.logical_and(cm_r, pq["keeps"])  # combine good obs
+        
+        # create boolean of valid obs (not NaNs)
+        cc = xr.ufuncs.isnan(xx.ndvi) 
+        cc = xr.ufuncs.logical_not(cc) #invert
         cc = cc.to_dataset(name="clear_count")
-        cc = cc.groupby(cc.spec["time.month"]).sum()  # clear count / month
+        cc = cc.groupby(cc.spec["time.month"]).sum()  # clear count per month
 
         # loop through months, select out arrays, rename
         ndvi_var_mean = []
