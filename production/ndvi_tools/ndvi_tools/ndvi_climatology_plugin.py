@@ -26,6 +26,7 @@ class NDVIClimatology(StatsPluginInterface):
         mask_band: str = "QA_PIXEL",
         harmonization_slope: float = None,
         harmonization_intercept: float = None,
+        rolling_window: int = 3,
         group_by: str = "solar_day",
         flags_ls57: Dict[str, Optional[Any]] = dict(
             cloud="high_confidence", cloud_shadow="high_confidence"
@@ -87,6 +88,7 @@ class NDVIClimatology(StatsPluginInterface):
         self.mask_band = mask_band
         self.harmonization_slope = harmonization_slope
         self.harmonization_intercept = harmonization_intercept
+        self.rolling_window = rolling_window
         self.group_by = group_by
         self.input_bands = tuple(bands) + (mask_band,)
         self.flags_ls57 = flags_ls57
@@ -255,6 +257,9 @@ class NDVIClimatology(StatsPluginInterface):
         
         # Remove NDVI's that aren't between 0 and 1
         ndvi = ndvi.where((ndvi>=0) & (ndvi<=1))
+        
+        #smooth timeseries with rolling mean
+        ndvi = ndvi.rolling(spec=self.rolling_window, min_periods=1).mean()
         
         return ndvi
 
