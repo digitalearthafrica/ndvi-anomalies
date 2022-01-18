@@ -26,7 +26,7 @@ class NDVIClimatology(StatsPluginInterface):
         mask_band: str = "QA_PIXEL",
         harmonization_slope: float = None,
         harmonization_intercept: float = None,
-        rolling_window: int = 3,
+        rolling_window: int = 4,
         group_by: str = "solar_day",
         flags_ls57: Dict[str, Optional[Any]] = dict(
             cloud="high_confidence", cloud_shadow="high_confidence"
@@ -259,7 +259,7 @@ class NDVIClimatology(StatsPluginInterface):
         ndvi = ndvi.where((ndvi>=0) & (ndvi<=1))
         
         #smooth timeseries with rolling mean
-        ndvi = ndvi.rolling(spec=self.rolling_window, min_periods=1).mean()
+        ndvi = ndvi.rolling(spec=self.rolling_window, min_periods=2).mean()
         
         return ndvi
 

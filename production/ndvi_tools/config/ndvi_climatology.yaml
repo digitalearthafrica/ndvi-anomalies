@@ -5,6 +5,7 @@ plugin_config:
   mask_band: "QA_PIXEL"
   harmonization_slope: 0.988
   harmonization_intercept: -0.015
+  rolling_window: 4
   mask_filters: [["opening", 5], ["dilation", 5]]
   flags_ls57:
     cloud: "high_confidence"
