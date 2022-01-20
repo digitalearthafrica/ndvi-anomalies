@@ -272,16 +272,18 @@ class NDVIClimatology(StatsPluginInterface):
         """
         # create boolean of valid obs (not NaNs)
         cc = xr.ufuncs.isnan(xx.ndvi)
-        cc = xr.ufuncs.logical_not(cc)  # invert
+        cc = xr.ufuncs.logical_not(cc) # invert
         cc = cc.to_dataset(name="clear_count")
-        cc = cc.groupby(cc.spec["time.month"]).sum("spec")  # clear count per month
+        xx_pq = cc.groupby(cc.spec["time.month"]).sum("spec") # clear count per month
 
         # smooth timeseries with rolling mean
         # doing this AFTER clear count as rolling mean changes # of obs.
         xx["ndvi"] = xx.ndvi.rolling(
-            spec=self.rolling_window, min_periods=self.rolling_window - 1
-        ).mean()
-
+            spec=self.rolling_window, min_periods=1).mean()
+        
+        # remask so rolling mean doesn't change # of obs
+        xx["ndvi"] = xx["ndvi"].where(cc['clear_count'])
+        
         # Climatology calulations
         months = {
             "jan": [1],
@@ -318,7 +320,7 @@ class NDVIClimatology(StatsPluginInterface):
             ix_std = ix_std.astype(np.float32)
 
             # count
-            ix_count = cc.sel(month=months[m])
+            ix_count = xx_pq.sel(month=months[m])
             ix_count = ix_count.to_array(name="count_" + m).drop("variable").squeeze()
             ix_count = ix_count.astype(np.int16)
 
