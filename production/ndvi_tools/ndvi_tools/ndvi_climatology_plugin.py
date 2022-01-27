@@ -124,7 +124,8 @@ class NDVIClimatology(StatsPluginInterface):
             5. Add cloud_mask band to xx for fuser and reduce
             """
 
-            # remove negative pixels, and pixels > than the maxiumum valid range for LS (65,455)
+            # remove negative pixels, pixels > than the maxiumum valid range for LS (65,455),
+            # and pixels where the blue band is above 20,000 (removes cloud missed by fmask)
             valid = (
                 (
                     (xx[self.bands] > (-1.0 * self.offset / self.scale))
@@ -133,7 +134,11 @@ class NDVIClimatology(StatsPluginInterface):
                 .to_array(dim="band")
                 .all(dim="band")
             )
-
+            
+            # remove missed cloud that fmask misses
+            missed_cloud =  xx['blue'] >= 20910 # i.e. > 0.375
+            missed_cloud = mask_cleanup(missed_cloud, mask_filters=[("dilation", 5)])
+            
             mask_band = xx[self.mask_band]
             xx = xx.drop_vars([self.mask_band])
 
@@ -142,13 +147,14 @@ class NDVIClimatology(StatsPluginInterface):
             # set cloud_mask - True=cloud, False=non-cloud
             mask, _ = masking.create_mask_value(flags_def, **flags)
             cloud_mask = (mask_band & mask) != 0
-
+            cloud_mask = xr.ufuncs.logical_or(cloud_mask, missed_cloud) # combine with 'missed_cloud'
+                
             # set no_data bitmask - True=data, False=no-data
             nodata_mask, _ = masking.create_mask_value(flags_def, **self.nodata_flags)
             keeps = (mask_band & nodata_mask) == 0
             xx = keep_good_only(xx, valid)  # remove negative and oversaturated pixels
             xx = keep_good_only(xx, keeps)  # remove nodata pixels
-
+            
             # add the pq layers to the dataset
             xx["cloud_mask"] = cloud_mask
 
@@ -279,7 +285,7 @@ class NDVIClimatology(StatsPluginInterface):
         # smooth timeseries with rolling mean
         # doing this AFTER clear count as rolling mean changes # of obs.
         xx["ndvi"] = xx.ndvi.rolling(
-            spec=self.rolling_window, min_periods=1).mean()
+            spec=self.rolling_window, min_periods=1).median()
         
         # remask so rolling mean doesn't change # of obs
         xx["ndvi"] = xx["ndvi"].where(cc['clear_count'])
