@@ -135,7 +135,7 @@ class NDVIClimatology(StatsPluginInterface):
                 .all(dim="band")
             )
             
-            # remove missed cloud that fmask misses
+            # remove cloud that fmask misses
             missed_cloud =  xx['blue'] >= 20910 # i.e. > 0.375
             missed_cloud = mask_cleanup(missed_cloud, mask_filters=[("dilation", 5)])
             
@@ -281,11 +281,11 @@ class NDVIClimatology(StatsPluginInterface):
         cc = xr.ufuncs.logical_not(cc) # invert
         cc = cc.to_dataset(name="clear_count")
         xx_pq = cc.groupby(cc.spec["time.month"]).sum("spec") # clear count per month
-
+        
         # smooth timeseries with rolling mean
         # doing this AFTER clear count as rolling mean changes # of obs.
         xx["ndvi"] = xx.ndvi.rolling(
-            spec=self.rolling_window, min_periods=1).median()
+            spec=self.rolling_window, min_periods=1).mean()
         
         # remask so rolling mean doesn't change # of obs
         xx["ndvi"] = xx["ndvi"].where(cc['clear_count'])
