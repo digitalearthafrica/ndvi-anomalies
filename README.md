@@ -11,8 +11,8 @@ Standardised NDVI Anomalies provide a measure of vegetation health relative to l
 The Standardized NDVI Anomaly will have the following specifications:
 
 * NDVI 'climatologies' are developed using harmonized Landsat 5,7,and 8 satellite imagery from the years 1984 to 2020
-* Anomalies will have monthly temporal frequency and include images from Landsat 8 and Sentinel-2
-* All datasets will have a spatial resolution of 30 metres
+* Anomalies will have monthly temporal frequency and include images from Landsat 8, Landsat 9, and Sentinel-2
+* All datasets will have a NATIVE spatial resolution of 30 metres
 
 ## Updating the pip requirements
 
