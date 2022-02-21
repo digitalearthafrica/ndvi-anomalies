@@ -4,7 +4,7 @@ import xarray as xr
 import numpy as np
 from functools import partial
 from datacube.utils import masking
-from odc.algo import keep_good_only, erase_bad, enum_to_bool
+from odc.algo import keep_good_only, erase_bad, enum_to_bool, to_float
 from odc.algo._masking import _xr_fuse, _first_valid_np, mask_cleanup, _fuse_or_np
 from odc.algo.io import load_with_native_transform
 from datacube.model import Dataset
@@ -42,7 +42,7 @@ class NDVIAnomaly(StatsPluginInterface):
         ),
         nodata_flags_ls89: Dict[str, Optional[Any]] = dict(nodata=False),
         nodata_flags_s2: Optional[Sequence[str]] = ['no data'],
-        filters: Optional[Iterable[Tuple[str, int]]] = None,
+        mask_filters: Optional[Iterable[Tuple[str, int]]] = [["opening", 5], ["dilation", 5]],
         rolling_window: int = 3,
         work_chunks: Dict[str, Optional[Any]] = dict(x=1600, y=1600),
         scale: float = 0.0000275,
@@ -66,7 +66,7 @@ class NDVIAnomaly(StatsPluginInterface):
         self.resampling = resampling
         self.nodata_flags_ls89 = nodata_flags_ls89
         self.nodata_flags_s2 = nodata_flags_s2
-        self.filters = filters
+        self.mask_filters = mask_filters
         self.work_chunks = work_chunks
         self.scale = scale
         self.offset = offset
@@ -127,7 +127,8 @@ class NDVIAnomaly(StatsPluginInterface):
             return xx
         
         def masking_data_s2(xx, flags):
-
+            
+            #create cloud etc mask
             mask_band = xx[self.mask_band_s2]
             xx = xx.drop_vars([self.mask_band_s2])
             pq_mask = enum_to_bool(mask=mask_band, categories=self.flags_s2)
@@ -193,8 +194,8 @@ class NDVIAnomaly(StatsPluginInterface):
             cloud_mask = ds[k]["cloud_mask"]
 
             # morphological operators on cloud dataset to improve it
-            if self.filters is not None:
-                cloud_mask = mask_cleanup(cloud_mask, mask_filters=self.filters)
+            if self.mask_filters is not None:
+                cloud_mask = mask_cleanup(cloud_mask, mask_filters=self.mask_filters)
 
             # erase pixels with dilated cloud
             ds[k] = ds[k].drop_vars(["cloud_mask"]) 
@@ -213,9 +214,11 @@ class NDVIAnomaly(StatsPluginInterface):
                     ds[k][band] = ds[k][band].astype(self.output_dtype)
                     ds[k][band].attrs["nodata"] = self.output_nodata
             
-            #rename s2 nir_2 to make ndvi calc easy
+            #rename s2 nir_2 to make ndvi calc easy, then convert s2 to float
+            # so nodata/masked regions are set to NaN
             if k == 's2':
                 ds[k] = ds[k].rename({'nir_2':'nir'})
+                ds[k] = to_float(ds[k], dtype=self.output_dtype)
             
             # calculate ndvi
             ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
