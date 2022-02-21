@@ -1,0 +1,23 @@
+plugin: ndvi_tools.ndvi_anomaly_plugin.NDVIAnomaly
+plugin_config:
+  resampling: "bilinear"
+  bands_ls89: ["red", "nir", "green", "blue"]
+  bands_s2: ["red", "nir_2"]
+  mask_band_ls: "QA_PIXEL"
+  mask_band_s2: "SCL"
+  rolling_window: 3
+  mask_filters: [["opening", 5], ["dilation", 5]]
+product:
+  name: ndvi_anomaly
+  short_name: ndvi_anomaly
+  version: 1.0.0
+  collections_site: explorer.digitalearth.africa
+  producer: digitalearthafrica.org
+  region_code_format: "x{x:03d}y{y:03d}"
+# computing resources
+threads: 15
+memory_limit: 90Gi
+s3_acl: bucket-owner-full-control
+# Generic product attributes
+cog_opts:
+  zlevel: 9
