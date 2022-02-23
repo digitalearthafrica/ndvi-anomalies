@@ -151,8 +151,6 @@ class NDVIAnomaly(StatsPluginInterface):
                 product_dss[product] = []
             product_dss[product].append(dataset)
         
-        #print(product_dss['ndvi_climatology_ls'])
-        
         # Separate out LS89 datasets from s2
         ls_dss = []
         if "ls8_sr" in product_dss:
@@ -268,7 +266,7 @@ class NDVIAnomaly(StatsPluginInterface):
             "dec": 12,
         }
         
-        #find the month and year we've loaded from time dim
+        #find the month and year we've loaded from time dim,
         #this is used to load the right month from ndvi-clim
         #and to append time dimension to output
         m = xx.spec['time'].dt.month.values[0]
