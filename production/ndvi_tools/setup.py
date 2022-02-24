@@ -26,7 +26,7 @@ DESCRIPTION = "Tools for running DE Africa's NDVI anomaly project"
 URL = "https://github.com/digitalearthafrica/deafrica-sandbox-notebooks"
 EMAIL = "chad.burton@ga.gov.au"
 AUTHOR = "Digital Earth Africa"
-REQUIRES_PYTHON = ">=3.6.0"
+REQUIRES_PYTHON = ">=3.8.0"
 
 # Import the README and use it as the long-description.
 here = os.path.abspath(os.path.dirname(__file__))
