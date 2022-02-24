@@ -19,3 +19,4 @@ python3-dev
 ca-certificates
 build-essential
 libpq-dev
+awscli
