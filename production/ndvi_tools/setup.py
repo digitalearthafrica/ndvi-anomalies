@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "aiobotocore[boto3]",
+    "aiobotocore[awscli,boto3]",
     "datacube",
     "numba",
     "numpy",
@@ -26,7 +26,7 @@ DESCRIPTION = "Tools for running DE Africa's NDVI anomaly project"
 URL = "https://github.com/digitalearthafrica/deafrica-sandbox-notebooks"
 EMAIL = "chad.burton@ga.gov.au"
 AUTHOR = "Digital Earth Africa"
-REQUIRES_PYTHON = ">=3.6.0"
+REQUIRES_PYTHON = ">=3.8.0"
 
 # Import the README and use it as the long-description.
 here = os.path.abspath(os.path.dirname(__file__))
