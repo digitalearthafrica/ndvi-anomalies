@@ -1,4 +1,4 @@
-FROM osgeo/gdal:ubuntu-small-3.3.3
+FROM osgeo/gdal:ubuntu-small-3.4.1
 
 ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
@@ -12,7 +12,7 @@ COPY testing/data/africa_land_extent.geojson /code/africa_land_extent.geojson
 # Install system tools
 RUN apt-get update \
     && apt-get install software-properties-common -y
-    
+
 ADD docker/apt-run.txt /conf/
 RUN apt-get update \
     && sed 's/#.*//' /conf/apt-run.txt | xargs apt-get install -y \
