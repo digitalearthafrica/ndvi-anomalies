@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "aiobotocore[boto3]",
+    "aiobotocore[awscli,boto3]",
     "datacube",
     "numba",
     "numpy",
