@@ -13,7 +13,7 @@ affine==2.3.0
     #   rasterio
 aiobotocore[boto3]==2.1.1
     # via
-    #   ndvi-tools (setup.py)
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-cloud
 aiohttp==3.8.1
     # via aiobotocore
@@ -91,7 +91,7 @@ dask-image==2021.12.0
 datacube==1.8.6
     # via
     #   eodatasets3
-    #   ndvi-tools (setup.py)
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-algo
     #   odc-dscache
     #   odc-stac
@@ -112,7 +112,7 @@ frozenlist==1.3.0
 fsspec==2022.2.0
     # via
     #   dask
-    #   ndvi-tools (setup.py)
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-stats
 gdal==3.4.1
     # via odc-stats
@@ -159,7 +159,7 @@ netcdf4==1.5.8
 networkx==2.6.3
     # via scikit-image
 numba==0.55.1
-    # via ndvi-tools (setup.py)
+    # via ndvi-tools (production/ndvi_tools/setup.py)
 numexpr==2.8.1
     # via odc-algo
 numpy==1.21.5
@@ -170,7 +170,7 @@ numpy==1.21.5
     #   datacube
     #   eodatasets3
     #   imageio
-    #   ndvi-tools (setup.py)
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   netcdf4
     #   numba
     #   numexpr
@@ -188,18 +188,18 @@ numpy==1.21.5
     #   xarray
 odc-algo==0.2.2
     # via
-    #   ndvi-tools (setup.py)
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-stats
 odc-cloud[async]==0.2.1
     # via odc-stats
 odc-dscache==0.2.2
     # via
-    #   ndvi-tools (setup.py)
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-stats
 odc-stac==0.2.4
-    # via ndvi-tools (setup.py)
+    # via ndvi-tools (production/ndvi_tools/setup.py)
 odc-stats==1.0.16
-    # via ndvi-tools (setup.py)
+    # via ndvi-tools (production/ndvi_tools/setup.py)
 packaging==21.3
     # via
     #   dask
@@ -210,7 +210,7 @@ packaging==21.3
 pandas==1.4.1
     # via
     #   datacube
-    #   ndvi-tools (setup.py)
+    #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-dscache
     #   odc-stac
     #   odc-stats
