@@ -203,6 +203,8 @@ odc-dscache==0.2.2
     # via
     #   ndvi-tools (production/ndvi_tools/setup.py)
     #   odc-stats
+odc-io==0.2.1
+    # via ndvi-tools (production/ndvi_tools/setup.py)
 odc-stac==0.2.4
     # via ndvi-tools (production/ndvi_tools/setup.py)
 odc-stats==1.0.16
@@ -282,7 +284,7 @@ ruamel-yaml==0.17.21
     # via eodatasets3
 ruamel-yaml-clib==0.2.6
     # via ruamel-yaml
-s3transfer==0.5.1
+s3transfer==0.5.2
     # via
     #   awscli
     #   boto3
@@ -352,6 +354,7 @@ zipp==3.7.0
     # via importlib-resources
 zstandard==0.17.0
     # via odc-dscache
+
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

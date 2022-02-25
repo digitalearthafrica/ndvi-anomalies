@@ -35,3 +35,7 @@ RUN pip install /code
 WORKDIR /code
 
 RUN pip freeze
+
+# test installations
+RUN ndvi-task --help && \
+    odc-stats --version
