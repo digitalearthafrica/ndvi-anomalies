@@ -53,7 +53,7 @@ setup_kwargs = {
     "license": "Apache License 2.0",
     "entry_points": {
         "console_scripts": [
-            "cm-task = ndvi_tools.geojson_defined_tasks:main"]
+            "ndvi-task = ndvi_tools.geojson_defined_tasks:main"]
     },
 }
 
