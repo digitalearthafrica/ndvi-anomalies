@@ -80,7 +80,7 @@ class NDVIAnomaly(StatsPluginInterface):
 
     def input_data(self, datasets: Sequence[Dataset], geobox: GeoBox) -> xr.Dataset:
         """
-        Load 
+        Load
         """
 
         def masking_data_ls(xx, flags):
@@ -126,17 +126,17 @@ class NDVIAnomaly(StatsPluginInterface):
             xx = xx.drop_vars(["green", "blue"])
 
             return xx
-        
+
         def masking_data_s2(xx, flags):
-            
+
             #create cloud etc mask
             mask_band = xx[self.mask_band_s2]
             xx = xx.drop_vars([self.mask_band_s2])
             pq_mask = enum_to_bool(mask=mask_band, categories=self.flags_s2)
-            
+
             # Erase nodata pixels
             keeps = enum_to_bool(mask=mask_band, categories=self.nodata_flags_s2, invert=True)
-            xx = keep_good_only(xx, keeps) 
+            xx = keep_good_only(xx, keeps)
 
             # add the pq layers to the dataset
             xx["cloud_mask"] = pq_mask
@@ -150,7 +150,7 @@ class NDVIAnomaly(StatsPluginInterface):
             if product not in product_dss:
                 product_dss[product] = []
             product_dss[product].append(dataset)
-        
+
         # Separate out LS89 datasets from s2
         ls_dss = []
         if "ls8_sr" in product_dss:
@@ -158,7 +158,7 @@ class NDVIAnomaly(StatsPluginInterface):
 
         if "ls9_sr" in product_dss:
             ls_dss = ls_dss + product_dss["ls9_sr"]
-    
+
         # load landsat 8/9.
         ls89 = load_with_native_transform(
             dss=ls_dss,
@@ -170,7 +170,7 @@ class NDVIAnomaly(StatsPluginInterface):
             chunks=self.work_chunks,
             resampling=self.resampling,
         )
-        
+
         # load s2
         s2 = load_with_native_transform(
             dss=product_dss["s2_l2a"],
@@ -182,10 +182,10 @@ class NDVIAnomaly(StatsPluginInterface):
             chunks=self.work_chunks,
             resampling=self.resampling,
         )
-        
+
         # add datasets to dict
         ds = dict(ls89=ls89, s2=s2)
-    
+
         # Loop through datasets, rescale to SR, calculate NDVI
         for k in ds:
 
@@ -197,7 +197,7 @@ class NDVIAnomaly(StatsPluginInterface):
                 cloud_mask = mask_cleanup(cloud_mask, mask_filters=self.mask_filters)
 
             # erase pixels with dilated cloud
-            ds[k] = ds[k].drop_vars(["cloud_mask"]) 
+            ds[k] = ds[k].drop_vars(["cloud_mask"])
             ds[k] = erase_bad(ds[k], cloud_mask)
 
             # rescale bands into surface reflectance scale if dataset is Landsat 8/9
@@ -212,13 +212,13 @@ class NDVIAnomaly(StatsPluginInterface):
                     # set data-type and nodata attrs
                     ds[k][band] = ds[k][band].astype(self.output_dtype)
                     ds[k][band].attrs["nodata"] = self.output_nodata
-            
+
             #rename s2 nir_2 to make ndvi calc easy, then convert s2 to float
             # so nodata/masked regions are set to NaN
             if k == 's2':
                 ds[k] = ds[k].rename({'nir_2':'nir'})
                 ds[k] = to_float(ds[k], dtype=self.output_dtype)
-            
+
             # calculate ndvi
             ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
 
@@ -235,7 +235,7 @@ class NDVIAnomaly(StatsPluginInterface):
 
     def reduce(self, xx: xr.Dataset) -> xr.Dataset:
         """
-        
+
         """
         # create boolean of valid obs (not NaNs)
         cc = xr.ufuncs.isnan(xx.ndvi)
@@ -265,21 +265,21 @@ class NDVIAnomaly(StatsPluginInterface):
             "nov": 11,
             "dec": 12,
         }
-        
+
         #find the month and year we've loaded from time dim,
         #this is used to load the right month from ndvi-clim
         #and to append time dimension to output
         m = xx.spec['time'].dt.month.values[0]
         y = str(xx.spec['time'].dt.year.values[0])
-        time = pd.date_range(np.datetime64(y+'-'+str(m)), periods=1, freq='M')
-        
+        time = pd.date_range(np.datetime64(y+'-'+f'{m:02d}'), periods=1, freq='M')
+
         #get month we're loading as abbreviated str
         month = list(months.keys())[list(months.values()).index(m)]
-        
+
         # hard-code loading of ndvi_climatology_ls as doesn't
         # fit with odc-stat save-tasks paradigm
         dc = datacube.Datacube(app="Vegetation_anomalies")
-        
+
         ndvi_clim = dc.load(
             product="ndvi_climatology_ls",
             like=xx.geobox,
@@ -290,7 +290,7 @@ class NDVIAnomaly(StatsPluginInterface):
 
         # calculate the mean for the month
         xx_mean = xx.mean("spec")
-        
+
         #calculate anomaly
         anomalies = xr.apply_ufunc(
             lambda x, m, s: (x - m) / s,
@@ -300,25 +300,25 @@ class NDVIAnomaly(StatsPluginInterface):
             output_dtypes=[xx.ndvi.dtype],
             dask="allowed"
         )
-      
+
         #rename arrays, assign dtype
         anomalies = anomalies.to_array(name="ndvi_std_anomaly").drop("variable").squeeze()
         anomalies = anomalies.astype(np.float32)
         anomalies = anomalies.expand_dims(time=time)
         anomalies = assign_crs(anomalies, crs='epsg:6933') #add geobox
-        
+
         xx_mean = xx_mean.to_array(name="ndvi_mean").drop("variable").squeeze()
         xx_mean = xx_mean.astype(np.float32)
         xx_mean = xx_mean.expand_dims(time=time)
-        
+
         xx_pq = xx_pq.to_array(name="clear_count").drop("variable").squeeze()
         xx_pq = xx_pq.astype(np.int8)
         xx_pq = xx_pq.expand_dims(time=time)
-                     
+
         # merge them all into one dataset
         anom = xr.merge([xx_mean, anomalies, xx_pq], compat='override')
         anom = assign_crs(anom, crs='epsg:6933') #add geobox
-        
+
         return anom
 
     def fuser(self, xx):
