@@ -11,6 +11,7 @@ REQUIRED = [
     "numba",
     "numpy",
     "odc-algo",
+    "odc-io",
     "odc-stac",
     "odc-stats",
     "odc-dscache",
