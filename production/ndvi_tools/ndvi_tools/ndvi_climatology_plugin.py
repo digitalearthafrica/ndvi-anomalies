@@ -7,6 +7,7 @@ from odc.algo import keep_good_only, erase_bad
 from odc.algo._masking import _xr_fuse, _first_valid_np, mask_cleanup, _fuse_or_np
 from odc.algo.io import load_with_native_transform
 from datacube.model import Dataset
+import datacube
 from datacube.utils.geometry import GeoBox
 from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
 from odc.stats.plugins import StatsPluginInterface
@@ -27,6 +28,7 @@ class NDVIClimatology(StatsPluginInterface):
         harmonization_slope: float = None,
         harmonization_intercept: float = None,
         rolling_window: int = 3,
+        wofs_threshold: float = 0.85,
         group_by: str = "solar_day",
         flags_ls57: Dict[str, Optional[Any]] = dict(
             cloud="high_confidence", cloud_shadow="high_confidence"
@@ -89,6 +91,7 @@ class NDVIClimatology(StatsPluginInterface):
         self.harmonization_slope = harmonization_slope
         self.harmonization_intercept = harmonization_intercept
         self.rolling_window = rolling_window
+        self.wofs_threshold = wofs_threshold
         self.group_by = group_by
         self.input_bands = tuple(bands) + (mask_band,)
         self.flags_ls57 = flags_ls57
@@ -339,7 +342,24 @@ class NDVIClimatology(StatsPluginInterface):
         clim = xr.merge(ndvi_var_mean + ndvi_var_std + pq, compat="override").drop(
             "month"
         )
+        
+        #--mask with all-time WOfS to remove permanent waterbodies---
+        dc = datacube.Datacube(app="Vegetation_anomalies")
+        wofs = dc.load(product='wofs_ls_summary_alltime',
+                       measurements=['frequency'],
+                       like=xx.geobox,
+                       dask_chunks=self.work_chunks,
+                      ).frequency.squeeze()
 
+        #set masked terrain regions to 0 
+        wofs = xr.where(xr.ufuncs.isnan(wofs), 0, wofs)
+
+        #threshold to create waterbodies mask
+        wofs = (wofs < self.wofs_threshold)
+        
+        # mask
+        clim = clim.where(wofs)
+        
         return clim
 
     def fuser(self, xx):

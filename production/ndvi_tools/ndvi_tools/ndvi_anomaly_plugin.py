@@ -45,6 +45,8 @@ class NDVIAnomaly(StatsPluginInterface):
         nodata_flags_s2: Optional[Sequence[str]] = ['no data'],
         mask_filters: Optional[Iterable[Tuple[str, int]]] = [["opening", 5], ["dilation", 5]],
         rolling_window: int = 3,
+        min_num_obs: int = 20,
+        wofs_threshold: float = 0.85,
         work_chunks: Dict[str, Optional[Any]] = dict(x=1600, y=1600),
         scale: float = 0.0000275,
         offset: float = -0.2,
@@ -59,6 +61,8 @@ class NDVIAnomaly(StatsPluginInterface):
         self.mask_band_ls89 = mask_band_ls89
         self.mask_band_s2 = mask_band_s2
         self.rolling_window = rolling_window
+        self.min_num_obs = min_num_obs
+        self.wofs_threshold = wofs_threshold
         self.group_by = group_by
         self.input_bands_ls89 = tuple(bands_ls89) + (mask_band_ls89,)
         self.input_bands_s2 = tuple(bands_s2) + (mask_band_s2,)
@@ -279,7 +283,6 @@ class NDVIAnomaly(StatsPluginInterface):
         # hard-code loading of ndvi_climatology_ls as doesn't
         # fit with odc-stat save-tasks paradigm
         dc = datacube.Datacube(app="Vegetation_anomalies")
-
         ndvi_clim = dc.load(
             product="ndvi_climatology_ls",
             like=xx.geobox,
@@ -287,8 +290,15 @@ class NDVIAnomaly(StatsPluginInterface):
             dask_chunks=self.work_chunks,
             resampling=self.resampling,
         ).squeeze().drop('time') #remove time dimension
-
-        # calculate the mean for the month
+        
+        # --Make a quality assurance mask where clear observation count is low
+        #  in the ndvi-climatology product ----
+        qa_mask = ndvi_clim['count_'+month] >= self.min_num_obs
+        
+        # remove pixels where obs are < min_num_obs
+        ndvi_clim = ndvi_clim.where(qa_mask)
+        
+        # calculate the mean NDVI for the month
         xx_mean = xx.mean("spec")
 
         #calculate anomaly
@@ -300,7 +310,7 @@ class NDVIAnomaly(StatsPluginInterface):
             output_dtypes=[xx.ndvi.dtype],
             dask="allowed"
         )
-
+            
         #rename arrays, assign dtype
         anomalies = anomalies.to_array(name="ndvi_std_anomaly").drop("variable").squeeze()
         anomalies = anomalies.astype(np.float32)
@@ -318,7 +328,23 @@ class NDVIAnomaly(StatsPluginInterface):
         # merge them all into one dataset
         anom = xr.merge([xx_mean, anomalies, xx_pq], compat='override')
         anom = assign_crs(anom, crs='epsg:6933') #add geobox
+        
+        #--mask with all-time WOfS to remove permanent waterbodies---
+        wofs = dc.load(product='wofs_ls_summary_alltime',
+                       measurements=['frequency'],
+                       like=xx.geobox,
+                       dask_chunks=self.work_chunks,
+                      ).frequency.squeeze()
 
+        #set masked terrain regions to 0 
+        wofs = xr.where(xr.ufuncs.isnan(wofs), 0, wofs)
+
+        #threshold to create waterbodies mask
+        wofs = (wofs < self.wofs_threshold)
+        
+        # mask
+        anom = anom.where(wofs)
+        
         return anom
 
     def fuser(self, xx):
