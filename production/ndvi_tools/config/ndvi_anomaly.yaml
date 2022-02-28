@@ -6,6 +6,8 @@ plugin_config:
   mask_band_ls: "QA_PIXEL"
   mask_band_s2: "SCL"
   rolling_window: 3
+  min_num_obs: 20
+  wofs_threshold: 0.85
   mask_filters: [["opening", 5], ["dilation", 5]]
 product:
   name: ndvi_anomaly
