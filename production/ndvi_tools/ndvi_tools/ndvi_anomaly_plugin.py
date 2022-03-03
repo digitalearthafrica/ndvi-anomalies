@@ -311,18 +311,15 @@ class NDVIAnomaly(StatsPluginInterface):
             dask="allowed"
         )
             
-        #rename arrays, assign dtype
+        #rename arrays, add time dim
         anomalies = anomalies.to_array(name="ndvi_std_anomaly").drop("variable").squeeze()
-        anomalies = anomalies.astype(np.float32)
         anomalies = anomalies.expand_dims(time=time)
         anomalies = assign_crs(anomalies, crs='epsg:6933') #add geobox
 
-        xx_mean = xx_mean.to_array(name="ndvi_mean").drop("variable").squeeze()
-        xx_mean = xx_mean.astype(np.float32)
+        xx_mean = xx_mean.to_array(name="ndvi_mean").drop("variable").squeeze() 
         xx_mean = xx_mean.expand_dims(time=time)
 
         xx_pq = xx_pq.to_array(name="clear_count").drop("variable").squeeze()
-        xx_pq = xx_pq.astype(np.int8)
         xx_pq = xx_pq.expand_dims(time=time)
 
         # merge them all into one dataset
@@ -344,6 +341,11 @@ class NDVIAnomaly(StatsPluginInterface):
         
         # mask
         anom = anom.where(wofs)
+        
+        # enforce dtypes (masking auto-changes to float64)
+        anom['ndvi_std_anomaly'] = anom['ndvi_std_anomaly'].astype(np.float32)
+        anom['ndvi_mean'] = anom['ndvi_mean'].astype(np.float32)
+        anom['clear_count'] = anom['clear_count'].astype(np.int8)
         
         return anom
 
