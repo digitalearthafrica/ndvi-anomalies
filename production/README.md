@@ -57,7 +57,6 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
 
 5. To monitor the batch run you can use:
    
-     * Production CPU, memory, SQS monitoring: 
      * Dev CPU, memory, SQS monitoring: https://mgmt.dev.digitalearth.africa/d/NDVIProcessing/ndvi-processing-dashboard?orgId=1
      * Prod CPU, memory, SQS monitoring:  https://mgmt.digitalearth.africa/d/NDVIProcessing/ndvi-processing-dashboard?orgId=1
 
@@ -70,8 +69,8 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
 ## Stage 2: NDVI Anomalies
  
 1. Ensure the `ndvi_anomaly` yaml is correct ("production/ndvi_tools/config/ndvi_anomaly.yaml"). There are some key configurable parameters in the yaml:
-    * `min_num_obs: 20`: This number controls the minimum number of clear observations in the NDVI Climatology that must be available before the pixel is masked out. e.g if calculating an NDVI anomaly for Januaary in equatorial Africa, and the NDVI climatology for January in the region has a very low clear count, then the anomaly will be masked out in the region as the climatology is not a fair representation of average conditions.  
-    * `wofs_threshold: 0.85`: the WOfS all-time summary is used to mask out permament waterbodies, this threshold defines 'permanent', wherever the WOfS all-time summary frequency is higher than or equal to this value will be masked out.
+    * `min_num_obs: 20`: This number controls the minimum number of clear observations in the NDVI Climatology that must be available before the pixel is masked out. e.g if calculating an NDVI anomaly for January in equatorial Africa, and the NDVI climatology for January in the region has a very low clear count, then the anomaly will be masked out in the region as the climatology is not a fair representation of average conditions.  
+    * `wofs_threshold: 0.85`: the WOfS all-time summary is used to mask out permament waterbodies, this threshold defines 'permanent'. Anywhere the WOfS all-time summary frequency is higher than or equal to this value will be masked out.
 
 
 2. Login to DE Africa's [Argo-production](https://argo.digitalearth.africa/workflows?limit=500) workspace (or [Argo-dev](https://argo.dev.digitalearth.africa/workflows?limit=500)), click on `submit workflow`, and use the drop-down box to select the `stats-ndvi-anom-process` template.  The yaml file which creates this workflow is located [here](https://github.com/digitalearthafrica/datakube-apps/blob/main/workspaces/deafrica-dev/processing/argo/workflow-templates/stats-ndvi-anomaly.yaml) in the [datakube-apps](https://github.com/digitalearthafrica/datakube-apps) repo.
@@ -83,9 +82,9 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
     * The `product-name` is "ndvi_anomaly" 
     * The `product-cfg` is the _raw_ github https link to the plugin configuration yaml, i.e. this file [here](https://raw.githubusercontent.com/digitalearthafrica/ndvi-anomalies/main/production/ndvi_tools/config/ndvi_anomaly.yaml)
     * `product-version` is usually just `1-0-0`, unless re-running the product with an updated version.
-    * `temporal-range` is the time range that gets passed to `odc-stats save tasks`; for the NDVi anomaly this will _always_ take the format `<YYYY>-<MM>--P1M`, e.g. `2022-01-P1M` to run an anomaly for Janruary 2022
-    * `geojson-extent` defines a region of tiles to run. There are only two option: either "testing_extent" which covers 110 tiles covering a region from Ghana to Tunisia, use this extent if running a large scale test.  The other option is "africa_land_extent" which will run all tiles over the land mass of Africa (ocean tiles are excluded).
-    * `parallel-processing` refers to the number of pods K8s will scale too. For testing, set this to `1` and a single machine will run - this makes it easy to inspect logs etc.  For the full scale production runs a good number is `100` (100 machines will run 100 tiles in parallel).
+    * `temporal-range` is the time range that gets passed to `odc-stats save tasks`; for the NDVI anomaly this will _always_ take the format `<YYYY>-<MM>--P1M`, e.g. `2022-01-P1M` to run an anomaly for January 2022
+    * `geojson-extent` defines a region of tiles to run. There are only two option: either "testing_extent" which covers 111 tiles covering a region from Ghana to Tunisia, use this extent if running a large scale test.  The other option is "africa_land_extent" which will run all tiles over the land mass of Africa (ocean tiles are excluded).
+    * `parallel-processing` refers to the number of pods K8s will scale too. For testing, set this to `1` and a single machine will run - this makes it easy to inspect logs etc.  For the full scale production runs a good number is `200` (100 machines will run 200 tiles in parallel).
     * The other parameters (`input-products`, `queue`, `resolution` etc.) should mostly stay as their defaults.
     * Hit the `submit` button when you're happy with the inputs and the code will be deployed.
     
@@ -94,7 +93,6 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
 
 5. To monitor the batch run you can use the same grafana charts as the climatology:
    
-     * Production CPU, memory, SQS monitoring: 
      * Dev CPU, memory, SQS monitoring: https://mgmt.dev.digitalearth.africa/d/NDVIProcessing/ndvi-processing-dashboard?orgId=1
      * Prod CPU, memory, SQS monitoring:  https://mgmt.digitalearth.africa/d/NDVIProcessing/ndvi-processing-dashboard?orgId=1
 
