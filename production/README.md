@@ -15,7 +15,7 @@ pip install ndvi_tools
 
 ---
 
-**The NDVI anomalies production is divided into two stages.  The first stage is calculation of long-term NDVI mean and standard deviation 'climatologies'.**
+**The NDVI anomalies production is divided into two stages.  The first stage is calculation of long-term NDVI mean and standard deviation 'climatologies'. The second stage is running monthly NDVI standardised anomalies.**
 
 ## Stage 1: NDVI Climatologies
 
