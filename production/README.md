@@ -84,7 +84,7 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
     * `product-version` is usually just `1-0-0`, unless re-running the product with an updated version.
     * `temporal-range` is the time range that gets passed to `odc-stats save tasks`; for the NDVI anomaly this will _always_ take the format `<YYYY>-<MM>--P1M`, e.g. `2022-01-P1M` to run an anomaly for January 2022
     * `geojson-extent` defines a region of tiles to run. There are only two option: either "testing_extent" which covers 111 tiles covering a region from Ghana to Tunisia, use this extent if running a large scale test.  The other option is "africa_land_extent" which will run all tiles over the land mass of Africa (ocean tiles are excluded).
-    * `parallel-processing` refers to the number of pods K8s will scale too. For testing, set this to `1` and a single machine will run - this makes it easy to inspect logs etc.  For the full scale production runs a good number is `200` (100 machines will run 200 tiles in parallel).
+    * `parallel-processing` refers to the number of pods K8s will scale too. For testing, set this to `1` and a single machine will run - this makes it easy to inspect logs etc.  For the full scale production runs a good number is `480` (40 machines will run 480 tiles in parallel).
     * The other parameters (`input-products`, `queue`, `resolution` etc.) should mostly stay as their defaults.
     * Hit the `submit` button when you're happy with the inputs and the code will be deployed.
     
