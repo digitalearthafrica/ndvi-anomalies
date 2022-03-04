@@ -17,8 +17,8 @@ product:
   producer: digitalearthafrica.org
   region_code_format: "x{x:03d}y{y:03d}"
 # computing resources
-threads: 7
-memory_limit: 45Gi
+threads: 5
+memory_limit: 30Gi
 s3_acl: bucket-owner-full-control
 # Generic product attributes
 cog_opts:
