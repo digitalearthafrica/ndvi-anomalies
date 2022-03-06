@@ -70,10 +70,10 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
 
 ### Local testing of the plugin
 
-The ODC-statistician plugin that calculates the NDVI anomalies can be tested within DE Africa's Sandbox environment using the notebook [1_Plugin_testing_anomalies.ipynb](1_Plugin_testing_anomalies.ipynb).
+The ODC-statistician plugin that calculates the NDVI anomalies can be tested within DE Africa's Sandbox environment using the notebook [1_Plugin_testing_anomalies.ipynb](2_Plugin_testing_anomalies.ipynb).
 
 * The ODC-stats plugin for calculating the NDVI anomalies is called: [ndvi_anomaly_plugin](ndvi_tools/ndvi_tools/ndvi_anomaly_plugin.py)
-* A yaml is required to configure the plugin: [ndvi_anomaly](ndvi_tools/ndvi_tools/config/ndvi_anomaly.yaml)
+* A yaml is required to configure the plugin: [ndvi_anomaly](ndvi_tools/config/ndvi_anomaly.yaml)
 
 ### Running production code
 
