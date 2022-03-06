@@ -24,7 +24,7 @@ pip install ndvi_tools
 The ODC-statistician plugin that calculates the NDVI climatolgies can be tested within DE Africa's Sandbox environment using the notebook [1_Plugin_testing_climatology.ipynb](1_Plugin_testing_climatology.ipynb).
 
 * The ODC-stats plugin for calculating the NDVI climatologies is called: [ndvi_climatology_plugin](ndvi_tools/ndvi_tools/ndvi_climatology_plugin.py)
-* A yaml is required to configure the plugin: [ndvi_climatology](ndvi_tools/ndvi_tools/config/ndvi_climatology.yaml)
+* A yaml is required to configure the plugin: [ndvi_climatology](ndvi_tools/config/ndvi_climatology.yaml)
 
 ### Running production code
  
