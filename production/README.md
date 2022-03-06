@@ -21,7 +21,7 @@ pip install ndvi_tools
 
 ### Local testing of the plugin
 
-The ODC-statistician plugin that calculates the NDVI climatolgies can be tested within DE Africa's Sandbox environment using the notebook [1_Plugin_testing.ipynb](1_Plugin_testing.ipynb).
+The ODC-statistician plugin that calculates the NDVI climatolgies can be tested within DE Africa's Sandbox environment using the notebook [1_Plugin_testing_climatology.ipynb](1_Plugin_testing_climatology.ipynb).
 
 * The ODC-stats plugin for calculating the NDVI climatologies is called: [ndvi_climatology_plugin](ndvi_tools/ndvi_tools/ndvi_climatology_plugin.py)
 * A yaml is required to configure the plugin: [ndvi_climatology](ndvi_tools/ndvi_tools/config/ndvi_climatology.yaml)
@@ -67,7 +67,16 @@ The ODC-statistician plugin that calculates the NDVI climatolgies can be tested 
 ---
 
 ## Stage 2: NDVI Anomalies
- 
+
+### Local testing of the plugin
+
+The ODC-statistician plugin that calculates the NDVI anomalies can be tested within DE Africa's Sandbox environment using the notebook [1_Plugin_testing_anomalies.ipynb](1_Plugin_testing_anomalies.ipynb).
+
+* The ODC-stats plugin for calculating the NDVI anomalies is called: [ndvi_anomaly_plugin](ndvi_tools/ndvi_tools/ndvi_anomaly_plugin.py)
+* A yaml is required to configure the plugin: [ndvi_anomaly](ndvi_tools/ndvi_tools/config/ndvi_anomaly.yaml)
+
+### Running production code
+
 1. Ensure the `ndvi_anomaly` yaml is correct ("production/ndvi_tools/config/ndvi_anomaly.yaml"). There are some key configurable parameters in the yaml:
     * `min_num_obs: 20`: This number controls the minimum number of clear observations in the NDVI Climatology that must be available before the pixel is masked out. e.g if calculating an NDVI anomaly for January in equatorial Africa, and the NDVI climatology for January in the region has a very low clear count, then the anomaly will be masked out in the region as the climatology is not a fair representation of average conditions.  
     * `wofs_threshold: 0.85`: the WOfS all-time summary is used to mask out permament waterbodies, this threshold defines 'permanent'. Anywhere the WOfS all-time summary frequency is higher than or equal to this value will be masked out.
