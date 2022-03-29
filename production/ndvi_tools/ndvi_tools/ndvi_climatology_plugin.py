@@ -1,17 +1,18 @@
-from toolz import get_in
-import xarray as xr
-import numpy as np
 from functools import partial
-from datacube.utils import masking
-from odc.algo import keep_good_only, erase_bad
-from odc.algo._masking import _xr_fuse, _first_valid_np, mask_cleanup, _fuse_or_np
-from odc.algo.io import load_with_native_transform
-from datacube.model import Dataset
-import datacube
-from datacube.utils.geometry import GeoBox
 from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
+
+import datacube
+import numpy as np
+import xarray as xr
+from datacube.model import Dataset
+from datacube.utils import masking
+from datacube.utils.geometry import GeoBox
+from odc.algo import erase_bad, keep_good_only
+from odc.algo._masking import _first_valid_np, _fuse_or_np, _xr_fuse, mask_cleanup
+from odc.algo.io import load_with_native_transform
 from odc.stats.plugins import StatsPluginInterface
 from odc.stats.plugins._registry import register
+from toolz import get_in
 
 
 class NDVIClimatology(StatsPluginInterface):
@@ -137,11 +138,11 @@ class NDVIClimatology(StatsPluginInterface):
                 .to_array(dim="band")
                 .all(dim="band")
             )
-            
+
             # remove cloud that fmask misses
-            missed_cloud =  xx['blue'] >= 20910 # i.e. > 0.375
+            missed_cloud = xx["blue"] >= 20910  # i.e. > 0.375
             missed_cloud = mask_cleanup(missed_cloud, mask_filters=[("dilation", 5)])
-            
+
             mask_band = xx[self.mask_band]
             xx = xx.drop_vars([self.mask_band])
 
@@ -150,14 +151,16 @@ class NDVIClimatology(StatsPluginInterface):
             # set cloud_mask - True=cloud, False=non-cloud
             mask, _ = masking.create_mask_value(flags_def, **flags)
             cloud_mask = (mask_band & mask) != 0
-            cloud_mask = xr.ufuncs.logical_or(cloud_mask, missed_cloud) # combine with 'missed_cloud'
-                
+            cloud_mask = xr.ufuncs.logical_or(
+                cloud_mask, missed_cloud
+            )  # combine with 'missed_cloud'
+
             # set no_data bitmask - True=data, False=no-data
             nodata_mask, _ = masking.create_mask_value(flags_def, **self.nodata_flags)
             keeps = (mask_band & nodata_mask) == 0
             xx = keep_good_only(xx, valid)  # remove negative and oversaturated pixels
             xx = keep_good_only(xx, keeps)  # remove nodata pixels
-            
+
             # add the pq layers to the dataset
             xx["cloud_mask"] = cloud_mask
 
@@ -281,18 +284,17 @@ class NDVIClimatology(StatsPluginInterface):
         """
         # create boolean of valid obs (not NaNs)
         cc = xr.ufuncs.isnan(xx.ndvi)
-        cc = xr.ufuncs.logical_not(cc) # invert
+        cc = xr.ufuncs.logical_not(cc)  # invert
         cc = cc.to_dataset(name="clear_count")
-        xx_pq = cc.groupby(cc.spec["time.month"]).sum("spec") # clear count per month
-        
+        xx_pq = cc.groupby(cc.spec["time.month"]).sum("spec")  # clear count per month
+
         # smooth timeseries with rolling mean
         # doing this AFTER clear count as rolling mean changes # of obs.
-        xx["ndvi"] = xx.ndvi.rolling(
-            spec=self.rolling_window, min_periods=1).mean()
-        
+        xx["ndvi"] = xx.ndvi.rolling(spec=self.rolling_window, min_periods=1).mean()
+
         # remask so rolling mean doesn't change # of obs
-        xx["ndvi"] = xx["ndvi"].where(cc['clear_count'])
-        
+        xx["ndvi"] = xx["ndvi"].where(cc["clear_count"])
+
         # Climatology calulations
         months = {
             "jan": [1],
@@ -342,24 +344,25 @@ class NDVIClimatology(StatsPluginInterface):
         clim = xr.merge(ndvi_var_mean + ndvi_var_std + pq, compat="override").drop(
             "month"
         )
-        
-        #--mask with all-time WOfS to remove permanent waterbodies---
-        dc = datacube.Datacube(app="Vegetation_anomalies")
-        wofs = dc.load(product='wofs_ls_summary_alltime',
-                       measurements=['frequency'],
-                       like=xx.geobox,
-                       dask_chunks=self.work_chunks,
-                      ).frequency.squeeze()
 
-        #set masked terrain regions to 0 
+        # --mask with all-time WOfS to remove permanent waterbodies---
+        dc = datacube.Datacube(app="Vegetation_anomalies")
+        wofs = dc.load(
+            product="wofs_ls_summary_alltime",
+            measurements=["frequency"],
+            like=xx.geobox,
+            dask_chunks=self.work_chunks,
+        ).frequency.squeeze()
+
+        # set masked terrain regions to 0
         wofs = xr.where(xr.ufuncs.isnan(wofs), 0, wofs)
 
-        #threshold to create waterbodies mask
-        wofs = (wofs < self.wofs_threshold)
-        
+        # threshold to create waterbodies mask
+        wofs = wofs < self.wofs_threshold
+
         # mask
         clim = clim.where(wofs)
-        
+
         return clim
 
     def fuser(self, xx):
