@@ -29,14 +29,20 @@ def filter_tiles(dataset_cache: DatasetCache, geometry: Geometry):
 
 
 def publish_tasks(
-    dataset_cache: DatasetCache, geometry: Geometry, queue, remote_db_file: str, dry_run: bool = False
+    dataset_cache: DatasetCache,
+    geometry: Geometry,
+    queue,
+    remote_db_file: str,
+    dry_run: bool = False,
 ):
     messages = []
 
     tiles = filter_tiles(dataset_cache, geometry)
     for n, tile in enumerate(tiles):
         tile, _ = tile
-        message = dict(Id=str(n), MessageBody=json.dumps(render_sqs(tile, remote_db_file)))
+        message = dict(
+            Id=str(n), MessageBody=json.dumps(render_sqs(tile, remote_db_file))
+        )
         messages.append(message)
 
     if not dry_run:
