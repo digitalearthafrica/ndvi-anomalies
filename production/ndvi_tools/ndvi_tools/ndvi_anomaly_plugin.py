@@ -175,76 +175,81 @@ class NDVIAnomaly(StatsPluginInterface):
         if "ls9_sr" in product_dss:
             ls_dss = ls_dss + product_dss["ls9_sr"]
 
-        # load landsat 8/9.
-        ls89 = load_with_native_transform(
-            dss=ls_dss,
-            geobox=geobox,
-            native_transform=lambda x: masking_data_ls(x, self.flags_ls89),
-            bands=self.input_bands_ls89,
-            groupby=self.group_by,
-            fuser=self.fuser,
-            chunks=self.work_chunks,
-            resampling=self.resampling,
-        )
+        # Loading data needs to handle either LS or S-2 datasets might
+        # not be present, but we can assume that at least one of them will
+        # due to how the dataset cache creation works.
+        products = {}
+        # Load Landsats 8 and 9
+        if len(ls_dss) > 0:
+            ls89 = load_with_native_transform(
+                dss=ls_dss,
+                geobox=geobox,
+                native_transform=lambda x: masking_data_ls(x, self.flags_ls89),
+                bands=self.input_bands_ls89,
+                groupby=self.group_by,
+                fuser=self.fuser,
+                chunks=self.work_chunks,
+                resampling=self.resampling,
+            )
+            products["ls89"] = ls89
 
-        # load s2
-        s2 = load_with_native_transform(
-            dss=product_dss["s2_l2a"],
-            geobox=geobox,
-            native_transform=lambda x: masking_data_s2(x, self.flags_s2),
-            bands=self.input_bands_s2,
-            groupby=self.group_by,
-            fuser=self.fuser,
-            chunks=self.work_chunks,
-            resampling=self.resampling,
-        )
+        # Load Sentinel-2
+        if "s2_l2a" in product_dss:
+            s2 = load_with_native_transform(
+                dss=product_dss["s2_l2a"],
+                geobox=geobox,
+                native_transform=lambda x: masking_data_s2(x, self.flags_s2),
+                bands=self.input_bands_s2,
+                groupby=self.group_by,
+                fuser=self.fuser,
+                chunks=self.work_chunks,
+                resampling=self.resampling,
+            )
+            products["s2"] = s2
 
-        # add datasets to dict
-        ds = dict(ls89=ls89, s2=s2)
-
-        # Loop through datasets, rescale to SR, calculate NDVI
-        for k in ds:
-
+        # Loop through products, rescale, calculate NDVI
+        for key, datasets in products.items():
             # seperate pq layers
-            cloud_mask = ds[k]["cloud_mask"]
+            cloud_mask = datasets["cloud_mask"]
 
-            # morphological operators on cloud dataset to improve it
+            # Morphological operators on cloud layer to improve it
             if self.mask_filters is not None:
                 cloud_mask = mask_cleanup(cloud_mask, mask_filters=self.mask_filters)
 
             # erase pixels with dilated cloud
-            ds[k] = ds[k].drop_vars(["cloud_mask"])
-            ds[k] = erase_bad(ds[k], cloud_mask)
+            datasets = datasets.drop_vars(["cloud_mask"])
+            datasets = erase_bad(datasets, cloud_mask)
 
-            # rescale bands into surface reflectance scale if dataset is Landsat 8/9
-            if k == "ls89":
-                for band in ds[k].data_vars.keys():
+            # rescale bands into surface reflectance scale if product is Landsat 8/9
+            if key == "ls89":
+                for band in datasets.data_vars.keys():
                     # set nodata_mask - use for resetting nodata pixel after rescale
-                    nodata_mask = ds[k][band] == ds[k][band].attrs.get("nodata")
+                    nodata_mask = datasets[band] == datasets[band].attrs.get("nodata")
                     # rescale
-                    ds[k][band] = self.scale * ds[k][band] + self.offset
+                    datasets[band] = self.scale * datasets[band] + self.offset
                     #  apply nodata_mask - reset nodata pixels to output-nodata
-                    ds[k][band] = ds[k][band].where(~nodata_mask, self.output_nodata)
+                    datasets[band] = datasets[band].where(~nodata_mask, self.output_nodata)
                     # set data-type and nodata attrs
-                    ds[k][band] = ds[k][band].astype(self.output_dtype)
-                    ds[k][band].attrs["nodata"] = self.output_nodata
+                    datasets[band] = datasets[band].astype(self.output_dtype)
+                    datasets[band].attrs["nodata"] = self.output_nodata
 
-            # Rename s2 nir_2 to make ndvi calc easy, then convert s2 to float
+            # Rename S-2 nir_2 to make ndvi calc easy, then convert S-2 to float
             # so nodata/masked regions are set to NaN
-            if k == "s2":
-                ds[k] = ds[k].rename({"nir_2": "nir"})
-                ds[k] = to_float(ds[k], dtype=self.output_dtype)
+            if key == "s2":
+                datasets = datasets.rename({"nir_2": "nir"})
+                datasets = to_float(datasets, dtype=self.output_dtype)
 
             # calculate ndvi
-            ds[k]["ndvi"] = (ds[k].nir - ds[k].red) / (ds[k].nir + ds[k].red)
+            datasets["ndvi"] = (datasets.nir - datasets.red) / (datasets.nir + datasets.red)
 
             # remove remaining SR bands
-            ds[k] = ds[k].drop_vars(["red", "nir"])
+            datasets = datasets.drop_vars(["red", "nir"])
+            products[key] = datasets
 
-        # combine data arrays
-        ndvi = xr.concat([ds["ls89"], ds["s2"]], dim="spec").sortby("spec")
+        # Combine data arrays
+        ndvi = xr.concat([d for d in products.values()], dim="spec").sortby("spec")
 
-        # Remove NDVI's that aren't between 0 and 1
+        # Remove NDVI values that aren't between 0 and 1
         ndvi = ndvi.where((ndvi >= 0) & (ndvi <= 1))
 
         return ndvi

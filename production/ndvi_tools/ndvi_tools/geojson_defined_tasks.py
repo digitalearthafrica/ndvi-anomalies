@@ -16,10 +16,9 @@ def gen_args():
     parse.add_argument(
         "--grid", help="the tiling grid to use e.g. africa_10", default="africa_30"
     )
-    parse.add_argument("--outfile", help="output task file")
     parse.add_argument(
         "--publish",
-        help="publish the indices directly to the gaven sqs and db url",
+        help="publish the indices directly to the given sqs and db url",
         default=True,
     )
     parse.add_argument(
@@ -82,13 +81,12 @@ def main():
 
     africa = GRIDS[args.grid]
     task_df = pd.read_csv(args.task_csv)
-    aez_tasks = []
+    tasks_list = []
     for row in task_df.itertuples():
         tmp_geom = africa.tile_geobox((row.X, row.Y)).extent
         if geom.contains(tmp_geom) or geom.overlaps(tmp_geom):
-            aez_tasks.append(row)
-    output_df = pd.DataFrame(aez_tasks)
-    output_df.to_csv(args.outfile, index=False)
+            tasks_list.append(row)
+    output_df = pd.DataFrame(tasks_list)
     print("Generated " + str(len(output_df)) + " tasks from geojson")
 
     if args.publish:
