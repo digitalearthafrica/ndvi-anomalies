@@ -91,6 +91,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          target: base
           push: true
           tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ env.VERSION }}
