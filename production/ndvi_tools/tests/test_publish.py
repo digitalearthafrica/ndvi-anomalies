@@ -35,7 +35,8 @@ def test_publish_sns(test_db, test_geom):
     dataset_cache = DatasetCache.open_ro(str(test_db))
 
     # Create an SQS queue
-    queue = boto3.resource("sqs").create_queue(QueueName="test-queue")
+    sqs = boto3.resource("sqs", region_name="us-east-1")
+    queue = sqs.create_queue(QueueName="test-queue")
     publish_tasks(dataset_cache, geometry, queue, "s3://test-files/test.db")
 
 
