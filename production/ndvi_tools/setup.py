@@ -5,7 +5,7 @@ import os
 from setuptools import find_packages, setup
 
 # Where are we?
-IS_DEAFRICA_SANDBOX = ('sandbox' in os.getenv('JUPYTER_IMAGE', default=''))
+IS_DEAFRICA_SANDBOX = "sandbox" in os.getenv("JUPYTER_IMAGE", default="")
 
 # What packages are required for this module to be executed?
 REQUIRED = [
@@ -21,7 +21,7 @@ REQUIRED = [
     "toolz",
     "xarray",
     "fsspec",
-    "pandas"
+    "pandas",
 ]
 
 # Package meta-data.
@@ -55,8 +55,7 @@ setup_kwargs = {
     "include_package_data": True,
     "license": "Apache License 2.0",
     "entry_points": {
-        "console_scripts": [
-            "ndvi-task = ndvi_tools.geojson_defined_tasks:main"]
+        "console_scripts": ["ndvi-task = ndvi_tools.geojson_defined_tasks:main"]
     },
 }
 

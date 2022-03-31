@@ -1,97 +1,70 @@
-import argparse
+from distutils.log import debug
 import json
-import subprocess
-from typing import Sequence, Tuple
-
 import fsspec
-import pandas as pd
+import click
+import toolz
 from datacube.utils.geometry import Geometry
+from odc.aws.queue import get_queue, publish_messages
+from odc.stats.tasks import render_sqs
+from odc.dscache import DatasetCache
+
 from odc.dscache.tools.tiling import GRIDS
 
 
-def gen_args():
-    parse = argparse.ArgumentParser()
-    parse.add_argument("--task-csv", help="task csv file.")
-    parse.add_argument("--geojson", help="the absolute path of the geojson file")
-    parse.add_argument(
-        "--grid", help="the tiling grid to use e.g. africa_10", default="africa_30"
-    )
-    parse.add_argument(
-        "--publish",
-        help="publish the indices directly to the given sqs and db url",
-        default=True,
-    )
-    parse.add_argument(
-        "--sqs",
-        help="The SQS queue where task messages will be sent",
-    )
-    parse.add_argument(
-        "--db",
-        default="s3://deafrica-services/crop_mask_eastern/1-0-0/gm_s2_semiannual_all.db",
-        help="s3 url with the location of the database cache file",
-    )
-    return parse.parse_args()
+def get_geometry(geojson_file: str) -> Geometry:
+    with fsspec.open(geojson_file) as f:
+        data = json.load(f)
 
-
-def publish_task(task_slices: Sequence[Tuple], db_url: str, sqs: str):
-    """
-    publish the task_df index onto SQS defined
-    odc-stats publish-tasks s3://deafrica-services/crop_mask_eastern/1-0-0/gm_s2_semiannual_all.db \
-    deafrica-dev-eks-stats-geomedian-semiannual 4005:4010
-    """
-    assert all([db_url, sqs]), "must have all required arguments, db_url, sqs"
-    template = ["odc-stats", "publish-tasks", db_url, sqs]
-    for start, end in task_slices:
-        cmd = template.copy()
-        cmd.append(f"{start}:{end}")
-        print("Excuting {}".format(" ".join(cmd)))
-        subprocess.call(cmd)
-    print("Done!")
-
-
-def gen_slices(task_df: pd.DataFrame) -> Sequence[Tuple]:
-    tasks_slices = []
-    # sorted the indices first, then extract related indices
-    indices = sorted(task_df["Index"])
-    start: int = indices[0]
-    for cur, next in zip(indices[:-1], indices[1:]):
-        if next - cur > 1:
-            tasks_slices.append((start, cur + 1))
-            start = next
-    if next - cur > 1:
-        tasks_slices.append((next, next + 1))
-    else:
-        tasks_slices.append((start, next + 1))
-    return tasks_slices
-
-
-def main():
-    args = gen_args()
-    if not args.geojson:
-        raise ValueError("No geojson file specified")
-    if not args.outfile:
-        raise ValueError("No output file specified")
-    print("Using tiling grid " + args.grid)
-    with fsspec.open(args.geojson) as fhin:
-        data = json.load(fhin)
-
-    geom = Geometry(
+    return Geometry(
         data["features"][0]["geometry"], crs=data["crs"]["properties"]["name"]
     )
 
-    africa = GRIDS[args.grid]
-    task_df = pd.read_csv(args.task_csv)
-    tasks_list = []
-    for row in task_df.itertuples():
-        tmp_geom = africa.tile_geobox((row.X, row.Y)).extent
-        if geom.contains(tmp_geom) or geom.overlaps(tmp_geom):
-            tasks_list.append(row)
-    output_df = pd.DataFrame(tasks_list)
-    print("Generated " + str(len(output_df)) + " tasks from geojson")
 
-    if args.publish:
-        tasks_slices = gen_slices(output_df)
-        publish_task(tasks_slices, args.db, args.sqs)
+def filter_tiles(dataset_cache: DatasetCache, geometry: Geometry):
+    tiles = dataset_cache.tiles("africa_30")
+    for tile in tiles:
+        tile_geometry = GRIDS["africa_30"].tile_geobox((tile[0][1], tile[0][2])).extent
+        if tile_geometry.intersects(geometry):
+            yield tile
+
+
+def publish_tasks(
+    dataset_cache: DatasetCache,
+    geometry: Geometry,
+    queue,
+    remote_db_file: str,
+    dry_run: bool = False,
+):
+    messages = []
+
+    tiles = filter_tiles(dataset_cache, geometry)
+    for n, tile in enumerate(tiles):
+        tile, _ = tile
+        message = dict(
+            Id=str(n), MessageBody=json.dumps(render_sqs(tile, remote_db_file))
+        )
+        messages.append(message)
+
+    if not dry_run:
+        for bunch in toolz.partition_all(10, messages):
+            publish_messages(queue, bunch)
+        print(f"Published {len(messages)} messages")
+    else:
+        print(f"DRYRUN! Would have published {len(messages)} messages")
+
+
+@click.command("ndvi-task")
+@click.argument("geojson_file", type=str)
+@click.argument("db_file", type=str)
+@click.argument("remote_db_file", type=str)
+@click.argument("queue_name", type=str)
+@click.option("--dry-run", is_flag=True, default=False)
+def main(geojson_file, db_file, remote_db_file, queue_name, dry_run):
+    geometry = get_geometry(geojson_file)
+    queue = get_queue(queue_name)
+    dataset_cache = DatasetCache.open_ro(db_file)
+
+    publish_tasks(dataset_cache, geometry, queue, remote_db_file, dry_run=dry_run)
 
 
 if __name__ == "__main__":

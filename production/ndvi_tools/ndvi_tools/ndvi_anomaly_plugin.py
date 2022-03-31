@@ -228,7 +228,9 @@ class NDVIAnomaly(StatsPluginInterface):
                     # rescale
                     datasets[band] = self.scale * datasets[band] + self.offset
                     #  apply nodata_mask - reset nodata pixels to output-nodata
-                    datasets[band] = datasets[band].where(~nodata_mask, self.output_nodata)
+                    datasets[band] = datasets[band].where(
+                        ~nodata_mask, self.output_nodata
+                    )
                     # set data-type and nodata attrs
                     datasets[band] = datasets[band].astype(self.output_dtype)
                     datasets[band].attrs["nodata"] = self.output_nodata
@@ -240,7 +242,9 @@ class NDVIAnomaly(StatsPluginInterface):
                 datasets = to_float(datasets, dtype=self.output_dtype)
 
             # calculate ndvi
-            datasets["ndvi"] = (datasets.nir - datasets.red) / (datasets.nir + datasets.red)
+            datasets["ndvi"] = (datasets.nir - datasets.red) / (
+                datasets.nir + datasets.red
+            )
 
             # remove remaining SR bands
             datasets = datasets.drop_vars(["red", "nir"])
