@@ -175,8 +175,11 @@ class NDVIAnomaly(StatsPluginInterface):
         if "ls9_sr" in product_dss:
             ls_dss = ls_dss + product_dss["ls9_sr"]
 
+        # Loading data needs to handle either LS or S-2 datasets might
+        # not be present, but we can assume that at least one of them will
+        # due to how the dataset cache creation works.
         products = {}
-        # load landsat 8/9.
+        # Load Landsats 8 and 9
         if len(ls_dss) > 0:
             ls89 = load_with_native_transform(
                 dss=ls_dss,
@@ -190,7 +193,7 @@ class NDVIAnomaly(StatsPluginInterface):
             )
             products["ls89"] = ls89
 
-        # load s2
+        # Load Sentinel-2
         if "s2_l2a" in product_dss:
             s2 = load_with_native_transform(
                 dss=product_dss["s2_l2a"],
@@ -204,7 +207,7 @@ class NDVIAnomaly(StatsPluginInterface):
             )
             products["s2"] = s2
 
-        # Loop through products, rescale to SR, calculate NDVI
+        # Loop through products, rescale, calculate NDVI
         for key, datasets in products.items():
             # seperate pq layers
             cloud_mask = datasets["cloud_mask"]
@@ -230,7 +233,7 @@ class NDVIAnomaly(StatsPluginInterface):
                     datasets[band] = datasets[band].astype(self.output_dtype)
                     datasets[band].attrs["nodata"] = self.output_nodata
 
-            # Rename s2 nir_2 to make ndvi calc easy, then convert s2 to float
+            # Rename S-2 nir_2 to make ndvi calc easy, then convert S-2 to float
             # so nodata/masked regions are set to NaN
             if key == "s2":
                 datasets = datasets.rename({"nir_2": "nir"})
@@ -241,11 +244,12 @@ class NDVIAnomaly(StatsPluginInterface):
 
             # remove remaining SR bands
             datasets = datasets.drop_vars(["red", "nir"])
+            products[key] = datasets
 
-        # combine data arrays
+        # Combine data arrays
         ndvi = xr.concat([d for d in products.values()], dim="spec").sortby("spec")
 
-        # Remove NDVI's that aren't between 0 and 1
+        # Remove NDVI values that aren't between 0 and 1
         ndvi = ndvi.where((ndvi >= 0) & (ndvi <= 1))
 
         return ndvi
