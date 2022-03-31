@@ -27,7 +27,11 @@ and then install using pip `pip install --editable ndvi-anomalies/production/ndv
 
 Dump out a DB for a single month:
 
-`odc-stats save-tasks --temporal-range=2021-08--P1M --grid=africa_30 --usgs-collection-category=T1 ls8_sr-ls9_sr-s2_l2a`
+`odc-stats save-tasks --temporal-range=2021-08--P1M --grid=africa_30 --usgs-collection-category=T1 ls8_sr-ls9_sr-s2_l2a --tiles=160:171,80:91`
+
+or a subset:
+
+`odc-stats save-tasks --temporal-range=2021-08--P1M --grid=africa_30 --usgs-collection-category=T1 ls8_sr-ls9_sr-s2_l2a --tiles 170:181,80:91`
 
 Run one tile:
 
