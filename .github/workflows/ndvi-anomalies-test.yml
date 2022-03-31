@@ -59,7 +59,7 @@ jobs:
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
     - name: Run tests in image
       env:
-        AWS_REGION: us-west-2
+        AWS_REGION: "us-east-1"
       run: |
           docker run --rm ${{ env.IMAGE_NAME }} bash -c "pip install -e /code; pip install pytest moto; pytest /code/tests"
 
