@@ -16,7 +16,6 @@ def gen_args():
     parse.add_argument(
         "--grid", help="the tiling grid to use e.g. africa_10", default="africa_30"
     )
-    parse.add_argument("--outfile", help="output task file")
     parse.add_argument(
         "--publish",
         help="publish the indices directly to the given sqs and db url",
