@@ -70,10 +70,13 @@ def publish_tasks(
 @click.argument("remote_db_file", type=str)
 @click.argument("queue_name", type=str)
 @click.option("--dry-run", is_flag=True, default=False)
-@click.option("--limit", type=int, default=None)
+@click.option("--limit", type=int, default=0)
 def main(db_file, remote_db_file, queue_name, dry_run, limit):
     queue = get_queue(queue_name)
     dataset_cache = DatasetCache.open_ro(db_file)
+
+    if limit == 0:
+        limit = None
 
     publish_tasks(dataset_cache, queue, remote_db_file, dry_run=dry_run, limit=limit)
 
