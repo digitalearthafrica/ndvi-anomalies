@@ -1,14 +1,19 @@
-from distutils.log import debug
 import json
-import fsspec
+from pathlib import Path
+from typing import Optional
+
 import click
+import fsspec
+import pandas as pd
 import toolz
 from datacube.utils.geometry import Geometry
 from odc.aws.queue import get_queue, publish_messages
-from odc.stats.tasks import render_sqs
 from odc.dscache import DatasetCache
+from odc.stats.tasks import render_sqs
 
-from odc.dscache.tools.tiling import GRIDS
+# Load the ndvi_clim.csv from the relative path
+here = Path(__file__).parent
+ALL_TILES = set(pd.read_csv(here / "ndvi_clim.csv")["region_code"])
 
 
 def get_geometry(geojson_file: str) -> Geometry:
@@ -20,24 +25,31 @@ def get_geometry(geojson_file: str) -> Geometry:
     )
 
 
-def filter_tiles(dataset_cache: DatasetCache, geometry: Geometry):
+def filter_tiles(dataset_cache: DatasetCache, limit: Optional[int] = None):
     tiles = dataset_cache.tiles("africa_30")
+    count = 0
+
     for tile in tiles:
-        tile_geometry = GRIDS["africa_30"].tile_geobox((tile[0][1], tile[0][2])).extent
-        if tile_geometry.intersects(geometry):
+        tile_id = f"x{tile[0][1]:03d}y{tile[0][2]:03d}"
+
+        if tile_id in ALL_TILES:
+            count += 1
             yield tile
+
+            if limit is not None and count >= limit:
+                break
 
 
 def publish_tasks(
     dataset_cache: DatasetCache,
-    geometry: Geometry,
     queue,
     remote_db_file: str,
     dry_run: bool = False,
+    limit: Optional[int] = None,
 ):
     messages = []
 
-    tiles = filter_tiles(dataset_cache, geometry)
+    tiles = filter_tiles(dataset_cache, limit=limit)
     for n, tile in enumerate(tiles):
         tile, _ = tile
         message = dict(
@@ -54,17 +66,16 @@ def publish_tasks(
 
 
 @click.command("ndvi-task")
-@click.argument("geojson_file", type=str)
 @click.argument("db_file", type=str)
 @click.argument("remote_db_file", type=str)
 @click.argument("queue_name", type=str)
 @click.option("--dry-run", is_flag=True, default=False)
-def main(geojson_file, db_file, remote_db_file, queue_name, dry_run):
-    geometry = get_geometry(geojson_file)
+@click.option("--limit", type=int, default=None)
+def main(db_file, remote_db_file, queue_name, dry_run, limit):
     queue = get_queue(queue_name)
     dataset_cache = DatasetCache.open_ro(db_file)
 
-    publish_tasks(dataset_cache, geometry, queue, remote_db_file, dry_run=dry_run)
+    publish_tasks(dataset_cache, queue, remote_db_file, dry_run=dry_run, limit=limit)
 
 
 if __name__ == "__main__":
