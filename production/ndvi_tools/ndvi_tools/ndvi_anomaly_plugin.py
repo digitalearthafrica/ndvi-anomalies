@@ -129,7 +129,8 @@ class NDVIAnomaly(StatsPluginInterface):
                 flags_def, **self.nodata_flags_ls89
             )
             keeps = (mask_band & nodata_mask) == 0
-            xx = keep_good_only(xx, valid)  # remove negative and oversaturated pixels
+            # remove negative and oversaturated pixels
+            xx = keep_good_only(xx, valid)
             xx = keep_good_only(xx, keeps)  # remove nodata pixels
 
             # add the pq layers to the dataset
@@ -143,16 +144,19 @@ class NDVIAnomaly(StatsPluginInterface):
 
         def masking_data_s2(xx, flags):
 
+            # remove pixels valued 1
+            valid = (xx[self.bands_s2] > 1).to_array(dim="band").all(dim="band")
+
             # Create cloud etc mask
             mask_band = xx[self.mask_band_s2]
             xx = xx.drop_vars([self.mask_band_s2])
-            pq_mask = enum_to_bool(mask=mask_band, categories=self.flags_s2)
+            pq_mask = enum_to_bool(mask=mask_band, categories=flags)
 
             # Erase nodata pixels
             keeps = enum_to_bool(
                 mask=mask_band, categories=self.nodata_flags_s2, invert=True
             )
-            xx = keep_good_only(xx, keeps)
+            xx = keep_good_only(xx, keeps & valid)
 
             # add the pq layers to the dataset
             xx["cloud_mask"] = pq_mask
